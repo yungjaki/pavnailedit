@@ -4,12 +4,14 @@
     box-sizing: border-box;
 }
 
-body {
+html, body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     background-color: #f8e3e8;  /* Soft light pink background */
     color: #333;  /* Darker text for better contrast */
     min-height: 100vh;
     line-height: 1.5;
+    scroll-snap-type: y mandatory;
+    overflow-y: scroll;
 }
 
 /* GRADIENT AND LAYER BLUR */
@@ -53,7 +55,9 @@ header h1 {
     margin: 0;
     font-size: 3rem;
     font-weight: 300;
-    color: #2c2c2c; /* Darker text color */
+    background: -webkit-linear-gradient(#f8b7d1, #f9a1c2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 nav {
@@ -73,6 +77,16 @@ nav a {
 
 nav a:hover {
     color: #ff6ec4;  /* Soft pink hover */
+}
+
+.container hr {
+    border: none;
+    height: 0px;
+    margin: 4rem auto;
+    width: 80%;
+    background: linear-gradient(to right, transparent, #f8b7d1, #f9a1c2, transparent);
+    border-radius: 50px;
+    opacity: 0.8;
 }
 
 /* BUTTONS */
@@ -100,12 +114,27 @@ main {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: calc(90vh - 6rem);
+    min-height: 100vh;
+    scroll-snap-align: start;
+}
+
+about {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    scroll-snap-align: start;
+}
+
+about .content {
+    padding-left: 70rem;
+    margin-top: -55rem;
 }
 
 .content {
     max-width: 40rem;
     margin-left: 10%;
+    margin-top: -20rem;
     z-index: 999;
 }
 
@@ -188,13 +217,15 @@ main {
     position: absolute;
     top: 0;
     right: -20%;
-    margin-top: 5rem;
+    margin-top: 8rem;
+    height: 45rem;
+    
 }
 
 /* TABLET */
 @media (max-width: 1300px) {
     header{
-        padding: 1rem 0.5rem;
+        padding: 2rem 0.5rem;
     }
 
     .content{
@@ -203,8 +234,88 @@ main {
     
     .room-3d{
         scale: 0.8;
-        top: -20%;
-        right: 2%;
+        top: 1%;
+        margin-right: 10rem;
     }
+
+    about {
+        margin-top: 25rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        scroll-snap-align: start;
+    }
+
+    about .content {
+        padding-left: 1rem;
+        margin-top: -90rem;
+    }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    header{
+        padding: 1rem 0.1rem;
+    }
+
+    nav{
+        display: none;
+    }
+
+    header h1{
+        font-size: 2rem;
+    }
+
+
+    .btn-signing{
+        padding: 0.6rem 1.5rem;
+    }
+
+    .content{
+        margin-top: 25rem;
+    }
+    
+    .room-3d{
+        scale: 0.5;
+        width: 50rem;
+        top: -11rem;
+        right: -21rem;
+    }
+
+    .content{
+        max-width: 30rem;
+        margin-left: 10%;
+    }
+
+    .tag-box {
+        width: 12rem;
+    }
+
+    .content h1 {
+        font-size: 2.5rem;
+    }
+
+    .description{
+        font-size: 1rem;
+    }
+
+    .btn-booknow{
+        font-size: 0.8rem;
+        padding: 0.5rem 1.2rem;
+    }
+    
+    about {
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        scroll-snap-align: start;
+    }
+
+    about .content {
+        padding-left: 1rem;
+        margin-top: -20rem;
+    }
+    
 }
 
