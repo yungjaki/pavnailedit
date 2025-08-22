@@ -17,9 +17,9 @@
             <h1 class="logo">PavNailedIt</h1>
 
             <nav>
-                <a href="#">HOME</a>
+                <a class="selected" href="#">HOME</a>
                 <a href="#">ABOUT</a>
-                <a href="#">PICTURES</a>
+                <a href="pics.html">PICTURES</a>
                 <a href="#">CONTACT</a>
             </nav>
 
@@ -30,7 +30,7 @@
             <section class="main1">
                 <div class="content">
                     <div class="tag-box">
-                        <div class="tag">INTRUCING &wedbar;;</div>
+                        <a class="tag" href="pics.html">MY WORK &wedbar;;</a>
                     </div>
 
                     <h1>Book your<br>APPOINTMENT💅🏻</h1>
@@ -54,7 +54,8 @@
                     <h1>About</h1>
 
                     <p class="description">
-                        
+
+                        <spline-viewer class="card-3d" url="https://prod.spline.design/33VkF0f65QOxjoEs/scene.splinecode"></spline-viewer>
                     </p>
                     
                 </div>
@@ -62,36 +63,15 @@
 
         <spline-viewer class="room-3d" url="https://prod.spline.design/KMiNM55Y7c6if7qs/scene.splinecode"></spline-viewer>
 
+
+        <script>
+            function myFunction() {
+              location.replace("https://www.w3schools.com")
+            }
+            </script>
+
     </div>
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.48/build/spline-viewer.js"></script>
-    <script>
-        gsap.registerPlugin(ScrollTrigger);
-      
-        // Използваме matchMedia за различни устройства
-        ScrollTrigger.matchMedia({
-          // Десктоп - ширина над 1024px
-          "(min-width: 1025px)": function() {
-            gsap.to(".room-3d", {
-              scrollTrigger: {
-                trigger: ".room-3d",
-                start: "top top",
-                end: "500",
-                scrub: true,
-                pin: true,
-                markers: true
-              },
-              x: -687,
-              y: 216,
-              duration: 1
-            });
-          },
-      
-          // Мобилни и таблети - ширина до 1024px
-          "(max-width: 1024px)": function() {
-            // Тук можем да не правим нищо, анимацията няма да се активира
-          }
-        });
-      </script>
       
 </body>
 </html>
