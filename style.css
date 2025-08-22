@@ -441,7 +441,7 @@ about .redi {
     }
     
     .room-3d{
-        scale: 0.3;
+        scale: 0.2;
         width: 50rem;
         top: -17rem;
         right: -22rem;
@@ -486,7 +486,7 @@ about .redi {
 
     about .content {
         padding-left: 1rem;
-        margin-top: -20rem;
+        margin-top: -10rem;
     }
 
     .section-title {
