@@ -8,7 +8,7 @@
     <title>Document</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="theme-spring">
     <img  class="image-gradient" src="gradient.png" alt="gradient">
     <div class="layer-blur"></div>
 
@@ -141,6 +141,34 @@
                 </div>
             </section>
         </main>
+
+        <div class="falling" id="falling"></div>
+
+<script>
+function createFallingItem(type, count = 15) {
+  const container = document.getElementById("falling");
+  container.innerHTML = ""; // reset
+
+  for (let i = 0; i < count; i++) {
+    const item = document.createElement("div");
+    item.classList.add(type);
+
+    // Random start position
+    item.style.left = Math.random() * 100 + "vw";
+    item.style.animationDuration = 5 + Math.random() * 5 + "s";
+    item.style.animationDelay = Math.random() * 5 + "s";
+
+    container.appendChild(item);
+  }
+}
+
+// Example: create flowers
+// createFallingItem("flower", 20);
+
+// Example: create snowflakes
+// createFallingItem("snowflake", 30);
+</script>
+
         <script>
             document.querySelectorAll(".slideshow").forEach(slideshow => {
                 const slides = slideshow.querySelectorAll("img");
