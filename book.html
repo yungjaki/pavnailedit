@@ -280,19 +280,16 @@ timeButtons.forEach(btn => {
     });
 });
 
-const countableServices = [
-    "1 нокът", "Камъни", "Стикери", "Буква",
-    "3D цветя", "Blooming gel", "Blooming gel цвете",
-    "Панделка", "Аура", "Омбре", "Животински дизайн"
-];
+const countableServices = {
+    "1 нокът": 5,
+    "3D цветя": 4,
+    "Панделка": 4,
+};
 
 serviceOptions.forEach(opt => {
     const serviceName = opt.textContent.replace(/\d+[,\.]?\d*лв.*/, '').trim();
-    
-    let maxCount = 10; // по подразбиране максимум 10
-    if(serviceName === "1 нокът") maxCount = 5; // специален максимум за 1 нокът
 
-    if(countableServices.includes(serviceName)){
+    if(countableServices.hasOwnProperty(serviceName)){
         const counter = document.createElement('div');
         counter.classList.add('counter');
         counter.textContent = '1';
@@ -306,11 +303,12 @@ serviceOptions.forEach(opt => {
                 counter.textContent = '1';
             } else {
                 let count = parseInt(counter.textContent);
+                const maxCount = countableServices[serviceName];
                 if(count < maxCount){
                     count++;
                     counter.textContent = count;
                 } else {
-                    // ако е достигнат максимум → махаме избора и нулираме брояча
+                    // Ако е достигнат максимум → махаме избора и нулираме брояча
                     opt.classList.remove('active');
                     counter.style.display = 'none';
                     counter.textContent = '1';
@@ -325,6 +323,7 @@ serviceOptions.forEach(opt => {
         });
     }
 });
+
 
 
 
