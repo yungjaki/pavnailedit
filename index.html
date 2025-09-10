@@ -2,35 +2,37 @@
 <html lang="en">
 <head>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width= , initial-scale=1.0">
-    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PavNailedIt</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <img  class="image-gradient" src="gradient.png" alt="gradient">
+    <img class="image-gradient" src="gradient.png" alt="gradient">
     <div class="layer-blur"></div>
 
     <div class="container">
+        <!-- HEADER -->
         <header>
             <h1 class="logo">PavNailedIt</h1>
 
             <nav>
                 <a class="selected" href="#">HOME</a>
                 <a href="#">ABOUT</a>
-                <a href="pics.html">PICTURES</a>
-                <a href="#">CONTACT</a>
+                <a href="#gallery">PICTURES</a>
+                <a href="#contact">CONTACT</a>
             </nav>
 
             <a href="book.html" class="btn-book">BOOK NOW</a>
         </header>
 
+        <!-- MAIN HERO -->
         <main>
             <section class="main1">
                 <div class="content">
                     <div class="tag-box">
-                        <a class="tag" href="pics.html">MY WORK &wedbar;;</a>
+                        <a class="tag" href="#gallery">MY WORK &wedbar;</a>
                     </div>
 
                     <h1>Book your<br>APPOINTMENT💅🏻</h1>
@@ -42,62 +44,81 @@
                     <div class="buttons">
                         <a href="#" class="btn-booknow">Available hours&gt;</a>
                     </div>
-                    
                 </div>
             </section>
         </main>
 
         <hr>
 
-        <about>
-                <div class="content">
-                    <h1>About</h1>
+        <!-- ABOUT -->
+        <section id="about">
+            <div class="content">
+                <h1>About</h1>
+                <p class="description">
+                    Hi, I’m Pav! A passionate nail technician specializing in modern, stylish and unique nail designs.
+                </p>
+            </div>
+        </section>
 
-                    <p class="description">
+        <!-- GALLERY -->
+        <section id="gallery" class="gallery-section">
+            <h1>Gallery</h1>
+            <div class="gallery-grid">
+                <img src="images/nail1.jpg" alt="Nail design 1" class="gallery-img">
+                <img src="images/nail2.jpg" alt="Nail design 2" class="gallery-img">
+                <img src="images/nail3.jpg" alt="Nail design 3" class="gallery-img">
+                <img src="images/nail4.jpg" alt="Nail design 4" class="gallery-img">
+            </div>
+        </section>
 
-                        <!-- Lightbox -->
-<div id="lightbox" class="lightbox hidden">
-  <span class="close">&times;</span>
-  <img id="lightbox-img" src="" alt="Nail design large view">
-</div>
+        <!-- LIGHTBOX -->
+        <div id="lightbox" class="lightbox hidden">
+            <span class="close">&times;</span>
+            <img id="lightbox-img" src="" alt="Nail design large view">
+        </div>
 
-<!-- Отзиви -->
-<section id="reviews" class="container reviews">
-  <h2>Отзиви от клиенти</h2>
-  <div class="review-cards">
-    <div class="review">
-      <p>“Най-добрата маникюристка, винаги съм доволна!”</p>
-      <div class="review-footer">
-        <span class="stars">⭐⭐⭐⭐⭐</span>
-        <span>- Мария</span>
-      </div>
-    </div>
-    <div class="review">
-      <p>“Много внимание към детайла и прекрасен дизайн.”</p>
-      <div class="review-footer">
-        <span class="stars">⭐⭐⭐⭐⭐</span>
-        <span>- Елена</span>
-      </div>
-    </div>
-    <div class="review">
-      <p>“Професионализъм и креативност, препоръчвам горещо!”</p>
-      <div class="review-footer">
-        <span class="stars">⭐⭐⭐⭐⭐</span>
-        <span>- Виктория</span>
-      </div>
-    </div>
-  </div>
-</section>
-                    </p>
-                    
+        <!-- REVIEWS -->
+        <section id="reviews" class="reviews-section">
+            <h1>Reviews</h1>
+            <div class="review-cards">
+                <div class="review">
+                    <p>“Най-добрата маникюристка, винаги съм доволна!”</p>
+                    <div class="review-footer">
+                        <span class="stars">★★★★★</span>
+                        <span>- Мария</span>
+                    </div>
                 </div>
-        </about>
+                <div class="review">
+                    <p>“Много внимание към детайла и прекрасен дизайн.”</p>
+                    <div class="review-footer">
+                        <span class="stars">★★★★★</span>
+                        <span>- Елена</span>
+                    </div>
+                </div>
+                <div class="review">
+                    <p>“Професионализъм и креативност, препоръчвам горещо!”</p>
+                    <div class="review-footer">
+                        <span class="stars">★★★★★</span>
+                        <span>- Виктория</span>
+                    </div>
+                </div>
+            </div>
+        </section>
 
+        <!-- 3D ROOM -->
         <spline-viewer class="room-3d" url="https://prod.spline.design/KMiNM55Y7c6if7qs/scene.splinecode"></spline-viewer>
 
+        <!-- CONTACT -->
+        <section id="contact">
+            <div class="content">
+                <h1>Contact</h1>
+                <p class="description">Book an appointment at <strong>+359 88 123 4567</strong> or DM me on Instagram @pavnailedit 💌</p>
+            </div>
+        </section>
     </div>
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.48/build/spline-viewer.js"></script>
-      
-</body>
 
+    <!-- Scripts -->
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.48/build/spline-viewer.js"></script>
+    <script src="script.js"></script>
+</body>
 </html>
