@@ -352,6 +352,153 @@ about .redi {
     right: 10px;
 }
 
+/* ========================= */
+/* GALLERY SECTION           */
+/* ========================= */
+.gallery-section {
+    padding: 4rem 2rem;
+    scroll-snap-align: start;
+}
+
+.gallery-section h1 {
+    text-align: center;
+    font-size: 3rem;
+    background: linear-gradient(45deg, #f8b7d1, #f9a1c2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 3rem;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+}
+
+.gallery-grid img {
+    width: 100%;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gallery-grid img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 30px rgba(249, 161, 194, 0.4);
+}
+
+/* ========================= */
+/* LIGHTBOX                  */
+/* ========================= */
+.lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.lightbox img {
+    max-width: 90%;
+    max-height: 80%;
+    border-radius: 20px;
+}
+
+.lightbox .close {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    font-size: 3rem;
+    color: white;
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
+
+/* ========================= */
+/* REVIEWS SECTION           */
+/* ========================= */
+.reviews-section {
+    padding: 4rem 2rem;
+    background-color: rgba(255, 230, 240, 0.3);
+    scroll-snap-align: start;
+}
+
+.reviews-section h1 {
+    text-align: center;
+    font-size: 3rem;
+    background: linear-gradient(45deg, #f8b7d1, #f9a1c2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 3rem;
+}
+
+.review-cards {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.review {
+    background-color: #fff0f5;
+    padding: 2rem;
+    border-radius: 20px;
+    max-width: 25rem;
+    box-shadow: 0 10px 25px rgba(249, 161, 194, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.review:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(249, 161, 194, 0.4);
+}
+
+.review p {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.review-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stars {
+    color: #ff6ec4;
+    font-size: 1.2rem;
+}
+
+/* ========================= */
+/* RESPONSIVE ADJUSTMENTS    */
+/* ========================= */
+@media (max-width: 1200px) {
+    .gallery-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .review-cards {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+
 
 
 /* TABLET */
@@ -509,4 +656,5 @@ about .redi {
     }
     
 }
+
 
