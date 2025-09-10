@@ -17,10 +17,11 @@
         <header>
             <h1 class="logo">PavNailedIt</h1>
 
-            <nav>
+            <!-- DESKTOP NAV -->
+            <nav class="desktop-nav">
                 <a class="selected" href="#">HOME</a>
-                <a href="#">ABOUT</a>
-                <a href="/pics.html">PICTURES</a>
+                <a href="#about">ABOUT</a>
+                <a href="pics.html">PICTURES</a>
                 <a href="#contact">CONTACT</a>
             </nav>
 
@@ -32,7 +33,7 @@
             <section class="main1">
                 <div class="content">
                     <div class="tag-box">
-                        <a class="tag" href="#gallery">MY WORK &wedbar;</a>
+                        <a class="tag" href="pics.html">MY WORK &wedbar;</a>
                     </div>
 
                     <h1>Book your<br>APPOINTMENT💅🏻</h1>
@@ -69,6 +70,10 @@
                 <img src="/nails/3/nail1.jpg" alt="Nail design 3" class="gallery-img">
                 <img src="/nails/4/nail1.jpg" alt="Nail design 4" class="gallery-img">
             </div>
+
+            <div class="buttons">
+                <a href="pics.html" class="btn-booknow">SEE MORE &gt;</a>
+             </div>
         </section>
 
         <!-- LIGHTBOX -->
@@ -91,7 +96,7 @@
                 <div class="review">
                     <p>“Много внимание към детайла и прекрасен дизайн.”</p>
                     <div class="review-footer">
-                        <span class="stars">★★★★★</span>
+                        <span class="stars">★★★★</span>
                         <span>- Елена</span>
                     </div>
                 </div>
@@ -109,18 +114,22 @@
         <spline-viewer class="room-3d" url="https://prod.spline.design/KMiNM55Y7c6if7qs/scene.splinecode"></spline-viewer>
 
         <!-- CONTACT -->
-        <section id="contact">
-            <div class="content">
-                <h1>Contact</h1>
-                <p class="description">Book an appointment at <strong>+359 88 123 4567</strong> or DM me on Instagram @pavnailedit 💌</p>
-            </div>
+        <section id="contact" class="contact-section">
+            <h1>Contact</h1>
+            <p class="description">Book an appointment at <strong>+359 88 123 4567</strong> or DM me on Instagram @pavnailedit 💌</p>
+
+            <form class="contact-form">
+                <input type="text" placeholder="Your Name" required>
+                <input type="email" placeholder="Your Email" required>
+                <textarea placeholder="Your Message" rows="5" required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
         </section>
     </div>
+    </script>
 
     <!-- Scripts -->
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.48/build/spline-viewer.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
-
-

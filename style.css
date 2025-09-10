@@ -387,6 +387,10 @@ about .redi {
     box-shadow: 0 15px 30px rgba(249, 161, 194, 0.4);
 }
 
+.gallery-section .buttons {
+ margin-left: 4rem;
+}
+
 /* ========================= */
 /* LIGHTBOX                  */
 /* ========================= */
@@ -420,6 +424,24 @@ about .redi {
 
 .hidden {
     display: none;
+}
+
+.back-home-btn {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    background: linear-gradient(to right, #f8b7d1, #f9a1c2);
+    color: white;
+    font-weight: 500;
+    text-decoration: none;
+    transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease;
+    margin-left: 43rem;
+}
+
+.back-home-btn:hover {
+    background-color: #ff6ec4;
+    transform: scale(1.05);
+    opacity: 0.9;
 }
 
 /* ========================= */
@@ -476,6 +498,143 @@ about .redi {
 .stars {
     color: #ff6ec4;
     font-size: 1.2rem;
+}
+
+/* ========================= */
+/* CONTACT SECTION           */
+/* ========================= */
+.contact-section {
+    padding: 4rem 2rem;
+    background-color: rgba(255, 230, 240, 0.2); /* Soft blush overlay */
+    scroll-snap-align: start;
+}
+
+.contact-section h1 {
+    text-align: center;
+    font-size: 3rem;
+    background: linear-gradient(45deg, #f8b7d1, #f9a1c2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 3rem;
+}
+
+.contact-form {
+    max-width: 40rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.contact-form input,
+.contact-form textarea {
+    padding: 1rem;
+    border-radius: 20px;
+    border: 1px solid #f9d0d8;
+    font-size: 1rem;
+    background-color: #fff0f5;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+    border: 1px solid #ff6ec4;
+    box-shadow: 0 0 15px rgba(249, 161, 194, 0.4);
+    outline: none;
+}
+
+.contact-form button {
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(to right, #f8b7d1, #f9a1c2);
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.contact-form button:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
+/* BURGER MENU */
+.burger-menu {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 2rem;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+.burger-line {
+    height: 3px;
+    width: 100%;
+    background-color: #2c2c2c; /* черно за линиите */
+    border-radius: 2px;
+}
+
+/* MOBILE NAVIGATION */
+.mobile-nav {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 100%;
+    background-color: rgba(248, 227, 232, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 0;
+    gap: 1.5rem;
+    z-index: 1000;
+
+    /* Плавен преход */
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mobile-nav.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+
+.mobile-nav a {
+    text-decoration: none;
+    color: #2c2c2c;
+    font-size: 1.2rem;
+}
+
+.mobile-nav a:hover {
+    color: #ff6ec4;
+}
+
+/* SHOW BURGER MENU ON MOBILE */
+@media (max-width: 768px) {
+    .burger-menu {
+        display: flex;
+    }
+
+    .desktop-nav {
+        display: none;
+    }
+}
+
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .contact-form {
+        max-width: 90%;
+        gap: 1rem;
+    }
+
+    .contact-section h1 {
+        font-size: 2.5rem;
+    }
 }
 
 /* ========================= */
@@ -571,7 +730,7 @@ about .redi {
         padding: 1rem 0.1rem;
     }
 
-    nav{
+    nav {
         display: none;
     }
 
@@ -624,23 +783,22 @@ about .redi {
         padding: 0.5rem 1.2rem;
     }
     
-    about {
-        margin-top: 1rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        scroll-snap-align: start;
+    .content {
+        margin-top: -20rem; /* Намалено от 25rem */
     }
 
     about .content {
-        padding-left: 1rem;
-        margin-top: -10rem;
+        margin-top: 40rem; /* Намалено от -10rem */
+    }
+
+    .contact-section .description {
+    margin-bottom: 3rem;
     }
 
     .section-title {
         font-size: 2.5rem;
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 20rem;
         margin-right: 1rem;
         background: linear-gradient(45deg, #f8b7d1, #f9a1c2);
         -webkit-background-clip: text;
@@ -650,10 +808,18 @@ about .redi {
     .gallery {
         display: grid;
         margin-left: -5rem;
+        margin-top: -16rem;
         grid-template-columns: repeat(2, minmax(170px, 1fr));
         gap: 1rem;
         padding: 2rem;
     }
+
+    .back-home-btn {
+    margin-left: 43rem;
+    margin-top: -10rem;
+    }
+
+    
     
 }
 
