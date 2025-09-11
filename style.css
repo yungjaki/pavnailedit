@@ -14,6 +14,19 @@ html, body {
     overflow-y: scroll;
 }
 
+body {
+    background: linear-gradient(120deg, #f8e3e8, #f9d0d8); /* начални цветове (pink) */
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    transition: background 2s ease; /* плавен преход при смяна на сезона */
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 /* GRADIENT AND LAYER BLUR */
 .image-gradient {
     position: absolute;
@@ -105,6 +118,27 @@ nav .selected {
     transition: background-color 0.2s ease;
     cursor: pointer;
 }
+
+.btn-book {
+    position: relative; /* важно за позициониране на шапката */
+    overflow: visible;  /* за да се вижда иконата извън бутона */
+}
+
+.btn-book .season-icon {
+    position: absolute;
+    top: -15px;       /* малко над бутона */
+    right: -10px;     /* на горния десен ъгъл */
+    font-size: 1.5rem;
+    pointer-events: none; /* да не пречи на клика */
+    animation: blink 1.5s infinite; /* леко премигване */
+}
+
+/* Леко премигване на иконата */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
 
 .btn-book:hover {
     background-color: white;
@@ -613,6 +647,42 @@ about .redi {
     color: #ff6ec4;
 }
 
+.fall-element {
+    position: fixed;
+    top: -10%;
+    z-index: 9999;
+    pointer-events: none;
+    animation: fall linear forwards;
+    opacity: 0.9;
+}
+
+.scroll-animate {
+    opacity: 0;
+    transform: translateY(30px); /* леко изместване надолу */
+    transition: all 0.8s ease-out;
+}
+
+.scroll-animate.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+@keyframes fall {
+    0% {
+        transform: translateX(0) translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateX(30px) translateY(55vh) rotate(180deg);
+    }
+    100% {
+        transform: translateX(-30px) translateY(110vh) rotate(360deg);
+    }
+}
+
+
+
+
 /* SHOW BURGER MENU ON MOBILE */
 @media (max-width: 768px) {
     .burger-menu {
@@ -813,13 +883,6 @@ about .redi {
         gap: 1rem;
         padding: 2rem;
     }
-
-    .back-home-btn {
-    margin-left: 43rem;
-    margin-top: -10rem;
-    }
-
-    
     
 }
 
