@@ -5,6 +5,10 @@ import sgMail from "@sendgrid/mail";
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+initializeApp({
+  credential: cert(serviceAccount),
+});
+
 const db = getFirestore();
 const bookingsCollection = db.collection("bookings");
 
