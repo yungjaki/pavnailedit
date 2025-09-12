@@ -1,7 +1,7 @@
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
-const serviceAccount = require("./firebaseKey.json");
+const serviceAccount = require("./bookingthing.json");
 initializeApp({ credential: cert(serviceAccount) });
 const db = getFirestore();
 
