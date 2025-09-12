@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const galleryImages = document.querySelectorAll('.gallery-img');
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
@@ -138,4 +137,3 @@ lightbox.addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => {
     if (e.key === "Escape") closeLightbox();
 });
->>>>>>> ab64c21 ( Please enter the commit message for your changes. Lines starting)
