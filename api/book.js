@@ -1,13 +1,22 @@
-import { initializeApp, cert } from "firebase-admin/app";
+import { initializeApp, cert, getApps } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
-import serviceAccount from "../bookingthing.json"; // коригирай пътя според структурата на проекта
 import sgMail from "@sendgrid/mail";
+import path from "path";
+import fs from "fs";
 
+// Настройка на SendGrid
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-initializeApp({
-  credential: cert(serviceAccount),
-});
+// Път до локалния JSON файл с ключа
+const serviceAccountPath = path.join(process.cwd(), "../bookingthing.json");
+const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
+
+// Проверка дали Firebase вече е инициализиран
+if (!getApps().length) {
+  initializeApp({
+    credential: cert(serviceAccount),
+  });
+}
 
 const db = getFirestore();
 const bookingsCollection = db.collection("bookings");
