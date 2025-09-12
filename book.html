@@ -8,202 +8,30 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
 * {margin:0;padding:0;box-sizing:border-box;}
-body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f8e3e8;
-    color: #2c2c2c;
-    padding: 2rem;
-}
-
-h1 {
-    font-size: 3rem;
-    text-align: center;
-    margin-bottom: 2rem;
-    color:#f9a1c2;
-}
-
-form {
-    max-width: 600px;
-    margin: 0 auto;
-    background: rgba(255,255,255,0.8);
-    padding: 2rem;
-    border-radius: 25px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
-
-label {
-    display: block;
-    margin-top: 1rem;
-    font-weight: 500;
-}
-
-input[type=text], input[type=tel], select {
-    width: 100%;
-    padding: 0.7rem;
-    border-radius: 15px;
-    border: 1px solid #f9d0d8;
-    margin-top: 0.3rem;
-    font-size: 1rem;
-    background-color: #fff0f4;
-}
-
-.time-buttons {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.time-btn {
-    flex:1;
-    padding: 0.7rem;
-    border-radius: 50px;
-    border: 1px solid #f8b7d1;
-    background: #f9d0d8;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.time-btn.active {
-    background: #ff6ec4;
-    color: #fff;
-    box-shadow: 0 5px 15px rgba(255,110,196,0.4);
-}
-
-.time-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-#services, #addons {
-    margin-top: 1rem;
-}
-
-.service-option {
-    display: inline-block;
-    margin-right: 1rem;
-    margin-top: 0.5rem;
-    cursor: pointer;
-    background: #f8b7d1;
-    padding: 0.5rem 0.8rem;
-    border-radius: 15px;
-    position: relative;
-    transition: all 0.3s ease;
-}
-
-/* Брояч за количествени услуги */
-.service-option .counter {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #ff6ec4;
-    color: #fff;
-    font-size: 0.8rem;
-    font-weight: 600;
-    width: 20px;
-    height: 20px;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    pointer-events: none;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    transition: transform 0.2s;
-}
-
-/* Hover ефект */
-.service-option:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(255,110,196,0.3);
-    background: #f9a1c2;
-}
-
-/* Активен избор */
-.service-option.active {
-    background: #ff6ec4;
-    color: white;
-}
-
-.service-option .price {
-    display: inline-block;
-    font-weight: bold;
-    margin-left: 0.5rem;
-    color: #fff;
-    opacity: 0;
-    transform: translateY(-5px);
-    transition: all 0.3s ease;
-}
-
-.service-option.active .price {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-#addons-title {
-    font-weight: 600;
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
-    color: #f9a1c2;
-}
-
-input#date {
-    padding: 0.7rem;
-    border-radius: 15px;
-    border: 1px solid #f9d0d8;
-    background-color: #fff0f4;
-    width: 100%;
-    margin-top: 0.3rem;
-    font-size: 1rem;
-    transition: all 0.3s;
-}
-
-.flatpickr-calendar {
-    background: #fff0f4 !important;
-    border: 2px solid #f9a1c2 !important;
-    border-radius: 20px !important;
-    box-shadow: 0 10px 25px rgba(255,110,196,0.3) !important;
-}
-
-#totalPrice {
-    margin-top: 1rem;
-    font-weight: 600;
-    font-size: 1.2rem;
-    color: #ff6ec4;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    transform: translateY(0);
-    opacity: 1;
-}
-
-#totalPrice.animate {
-    transform: translateY(-5px);
-    opacity: 0.7;
-}
-
-button {
-    display: block;
-    width: 100%;
-    margin-top: 1.5rem;
-    padding: 0.8rem;
-    border: none;
-    border-radius: 50px;
-    background: linear-gradient(90deg, #f8b7d1, #f9a1c2);
-    color: #fff;
-    font-size: 1.2rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(255,110,196,0.4);
-}
-
-@media (max-width: 768px) {
-    form {padding: 1.5rem;}
-    h1 {font-size: 2rem;}
-    .time-buttons {flex-direction: column;}
-}
+body {font-family:'Roboto',sans-serif;background-color:#f8e3e8;color:#2c2c2c;padding:2rem;}
+h1 {font-size:3rem;text-align:center;margin-bottom:2rem;color:#f9a1c2;}
+form {max-width:600px;margin:0 auto;background:rgba(255,255,255,0.8);padding:2rem;border-radius:25px;box-shadow:0 10px 25px rgba(0,0,0,0.1);}
+label {display:block;margin-top:1rem;font-weight:500;}
+input[type=text], input[type=tel], input[type=email], select {width:100%;padding:0.7rem;border-radius:15px;border:1px solid #f9d0d8;margin-top:0.3rem;font-size:1rem;background-color:#fff0f4;}
+.time-buttons {display:flex;gap:1rem;margin-top:1rem;}
+.time-btn {flex:1;padding:0.7rem;border-radius:50px;border:1px solid #f8b7d1;background:#f9d0d8;font-weight:500;cursor:pointer;transition:all 0.3s;}
+.time-btn.active {background:#ff6ec4;color:#fff;box-shadow:0 5px 15px rgba(255,110,196,0.4);}
+.time-btn:disabled {opacity:0.5;cursor:not-allowed;}
+#services, #addons {margin-top:1rem;}
+.service-option {display:inline-block;margin-right:1rem;margin-top:0.5rem;cursor:pointer;background:#f8b7d1;padding:0.5rem 0.8rem;border-radius:15px;position:relative;transition:all 0.3s ease;}
+.service-option .counter {position:absolute;top:-5px;right:-5px;background:#ff6ec4;color:#fff;font-size:0.8rem;font-weight:600;width:20px;height:20px;display:none;justify-content:center;align-items:center;border-radius:50%;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,0.2);transition:transform 0.2s;}
+.service-option:hover {transform:translateY(-3px);box-shadow:0 6px 15px rgba(255,110,196,0.3);background:#f9a1c2;}
+.service-option.active {background:#ff6ec4;color:white;}
+.service-option .price {display:inline-block;font-weight:bold;margin-left:0.5rem;color:#fff;opacity:0;transform:translateY(-5px);transition:all 0.3s ease;}
+.service-option.active .price {opacity:1;transform:translateY(0);}
+#addons-title {font-weight:600;margin-top:1.5rem;margin-bottom:0.5rem;color:#f9a1c2;}
+input#date {padding:0.7rem;border-radius:15px;border:1px solid #f9d0d8;background-color:#fff0f4;width:100%;margin-top:0.3rem;font-size:1rem;transition:all 0.3s;}
+.flatpickr-calendar {background:#fff0f4 !important;border:2px solid #f9a1c2 !important;border-radius:20px !important;box-shadow:0 10px 25px rgba(255,110,196,0.3) !important;}
+#totalPrice {margin-top:1rem;font-weight:600;font-size:1.2rem;color:#ff6ec4;transition:transform 0.3s ease, opacity 0.3s ease;transform:translateY(0);opacity:1;}
+#totalPrice.animate {transform:translateY(-5px);opacity:0.7;}
+button {display:block;width:100%;margin-top:1.5rem;padding:0.8rem;border:none;border-radius:50px;background:linear-gradient(90deg,#f8b7d1,#f9a1c2);color:#fff;font-size:1.2rem;font-weight:600;cursor:pointer;transition:transform 0.2s, box-shadow 0.2s;}
+button:hover {transform:scale(1.05);box-shadow:0 8px 20px rgba(255,110,196,0.4);}
+@media (max-width:768px) {form{padding:1.5rem;} h1{font-size:2rem;} .time-buttons{flex-direction:column;}}
 </style>
 </head>
 <body>
@@ -211,52 +39,53 @@ button:hover {
 <h1>Запази час💅🏻</h1>
 
 <form id="bookingForm">
-    <label for="name">Име:</label>
-    <input type="text" id="name" placeholder="Име и фамилия">
+<label for="name">Име:</label>
+<input type="text" id="name" placeholder="Име и фамилия">
+<label for="phone">Телефон:</label>
+<input type="tel" id="phone" placeholder="Телефонен номер">
+<label for="email">Имейл (по желание):</label>
+<input type="email" id="email" placeholder="example@mail.com">
 
-    <label for="phone">Телефон:</label>
-    <input type="tel" id="phone" placeholder="Телефонен номер">
+<label for="service">Услуга:</label>
+<div id="services">
+    <span class="service-option" data-price="35">Гел - къси нокти<span class="price">35лв</span></span>
+    <span class="service-option" data-price="40">Гел - дълги нокти<span class="price">40лв</span></span>
+    <span class="service-option" data-price="55">Изграждане<span class="price">55лв</span></span>
+    <span class="service-option" data-price="3">1 нокът<span class="price">3лв</span></span>
+    <span class="service-option" data-price="4">Френски<span class="price">4лв</span></span>
+    <span class="service-option" data-price="0.4">Камъни<span class="price">0,40лв</span></span>
+    <span class="service-option" data-price="2">Стикери<span class="price">2лв</span></span>
+    <span class="service-option" data-price="2">Буква<span class="price">2лв</span></span>
+    <span class="service-option" data-price="4">Сребърно/златно<span class="price">4лв</span></span>
+</div>
 
-    <label for="service">Услуга:</label>
-    <div id="services">
-        <span class="service-option" data-price="35">Гел - къси нокти<span class="price">35лв</span></span>
-        <span class="service-option" data-price="40">Гел - дълги нокти<span class="price">40лв</span></span>
-        <span class="service-option" data-price="55">Изграждане<span class="price">55лв</span></span>
-        <span class="service-option" data-price="3">1 нокът<span class="price">3лв</span></span>
-        <span class="service-option" data-price="4">Френски<span class="price">4лв</span></span>
-        <span class="service-option" data-price="0.4">Камъни<span class="price">0,40лв</span></span>
-        <span class="service-option" data-price="2">Стикери<span class="price">2лв</span></span>
-        <span class="service-option" data-price="2">Буква<span class="price">2лв</span></span>
-        <span class="service-option" data-price="4">Сребърно/златно<span class="price">4лв</span></span>
-    </div>
+<div id="addons-title">Декорации</div>
+<div id="addons">
+    <span class="service-option" data-price="8">3D цветя<span class="price">8лв/бр</span></span>
+    <span class="service-option" data-price="8">3D линии<span class="price">8лв/изцяло</span></span>
+    <span class="service-option" data-price="6">Blooming gel<span class="price">6лв</span></span>
+    <span class="service-option" data-price="8">Blooming gel цвете<span class="price">8лв</span></span>
+    <span class="service-option" data-price="4">Панделка<span class="price">4лв/бр</span></span>
+    <span class="service-option" data-price="7">Аура<span class="price">7лв</span></span>
+    <span class="service-option" data-price="7">Омбре<span class="price">7лв</span></span>
+    <span class="service-option" data-price="8">Бяло омбре<span class="price">8лв</span></span>
+    <span class="service-option" data-price="6">Животински дизайн<span class="price">6лв</span></span>
+</div>
 
-    <div id="addons-title">Декорации</div>
-    <div id="addons">
-        <span class="service-option" data-price="8">3D цветя<span class="price">8лв/бр</span></span>
-        <span class="service-option" data-price="8">3D линии<span class="price">8лв/изцяло</span></span>
-        <span class="service-option" data-price="6">Blooming gel<span class="price">6лв</span></span>
-        <span class="service-option" data-price="8">Blooming gel цвете<span class="price">8лв</span></span>
-        <span class="service-option" data-price="4">Панделка<span class="price">4лв/бр</span></span>
-        <span class="service-option" data-price="7">Аура<span class="price">7лв</span></span>
-        <span class="service-option" data-price="7">Омбре<span class="price">7лв</span></span>
-        <span class="service-option" data-price="8">Бяло омбре<span class="price">8лв</span></span>
-        <span class="service-option" data-price="6">Животински дизайн<span class="price">6лв</span></span>
-    </div>
+<label for="date">Дата:</label>
+<input type="text" id="date" placeholder="Избери дата">
 
-    <label for="date">Дата:</label>
-    <input type="text" id="date" placeholder="Избери дата">
+<div class="time-buttons">
+    <button type="button" class="time-btn" data-time="10:00">10:00</button>
+    <button type="button" class="time-btn" data-time="14:00">14:00</button>
+</div>
 
-    <div class="time-buttons">
-        <button type="button" class="time-btn" data-time="10:00">10:00</button>
-        <button type="button" class="time-btn" data-time="14:00">14:00</button>
-    </div>
+<label for="design">Прикачи дизайн (по желание):</label>
+<input type="file" id="design" accept="image/*">
 
-    <label for="design">Прикачи дизайн (по желание):</label>
-    <input type="file" id="design" accept="image/*">
+<div id="totalPrice">Общо: 0лв</div>
 
-    <div id="totalPrice">Общо: 0лв</div>
-
-    <button type="button" id="bookBtn">Запази час</button>
+<button type="button" id="bookBtn">Запази час</button>
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -270,7 +99,7 @@ const totalPriceEl = document.getElementById("totalPrice");
 let currentTotal = 0;
 
 // Initialize Flatpickr
-flatpickr("#date", {locale: "bg", minDate: "today", dateFormat: "d.m.Y"});
+flatpickr("#date", {locale:"bg", minDate:"today", dateFormat:"d.m.Y"});
 
 // Time button selection
 timeButtons.forEach(btn => {
@@ -280,159 +109,84 @@ timeButtons.forEach(btn => {
     });
 });
 
-const countableServices = {
-    "1 нокът": 5,
-    "3D цветя": 4,
-    "Панделка": 4,
-};
-
+// Service selection and counters (същото като преди)
+const countableServices = {"1 нокът":5,"3D цветя":4,"Панделка":4};
 serviceOptions.forEach(opt => {
-    const serviceName = opt.textContent.replace(/\d+[,\.]?\d*лв.*/, '').trim();
-
-    if(countableServices.hasOwnProperty(serviceName)){
-        const counter = document.createElement('div');
+    const serviceName = opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim();
+    if(countableServices[serviceName]){
+        const counter=document.createElement('div');
         counter.classList.add('counter');
-        counter.textContent = '1';
-        counter.style.display = 'none';
+        counter.textContent='1';
+        counter.style.display='none';
         opt.appendChild(counter);
-
-        opt.addEventListener('click', () => {
+        opt.addEventListener('click',()=>{
             if(!opt.classList.contains('active')){
                 opt.classList.add('active');
-                counter.style.display = 'flex';
-                counter.textContent = '1';
+                counter.style.display='flex';
+                counter.textContent='1';
             } else {
-                let count = parseInt(counter.textContent);
-                const maxCount = countableServices[serviceName];
-                if(count < maxCount){
-                    count++;
-                    counter.textContent = count;
-                } else {
-                    // Ако е достигнат максимум → махаме избора и нулираме брояча
-                    opt.classList.remove('active');
-                    counter.style.display = 'none';
-                    counter.textContent = '1';
-                }
+                let count=parseInt(counter.textContent);
+                const maxCount=countableServices[serviceName];
+                if(count<maxCount){count++;counter.textContent=count;}
+                else {opt.classList.remove('active');counter.style.display='none';counter.textContent='1';}
             }
             updatePrice();
         });
-    } else {
-        opt.addEventListener('click', () => {
-            opt.classList.toggle('active');
-            updatePrice();
-        });
-    }
+    } else {opt.addEventListener('click',()=>{opt.classList.toggle('active');updatePrice();});}
 });
 
+function updatePrice(){let total=0;serviceOptions.forEach(opt=>{if(opt.classList.contains("active")){const count=parseInt(opt.querySelector('.counter')?.textContent)||1;total+=parseFloat(opt.dataset.price)*count;}});animatePrice(currentTotal,total,300);currentTotal=total;totalPriceEl.classList.add("animate");setTimeout(()=>totalPriceEl.classList.remove("animate"),200);}
+function animatePrice(start,end,duration){const startTime=performance.now();function animate(currentTime){const elapsed=currentTime-startTime;const progress=Math.min(elapsed/duration,1);const value=start+(end-start)*progress;totalPriceEl.textContent=`Общо: ${value.toFixed(2)}лв`;if(progress<1)requestAnimationFrame(animate);}requestAnimationFrame(animate);}
 
-
-
-
-// Изчисляване на обща цена с брояч и анимация
-function updatePrice() {
-    let total = 0;
-    serviceOptions.forEach(opt => {
-        if(opt.classList.contains("active")){
-            const count = parseInt(opt.querySelector('.counter')?.textContent) || 1;
-            total += parseFloat(opt.dataset.price) * count;
-        }
-    });
-
-    animatePrice(currentTotal, total, 300);
-    currentTotal = total;
-
-    totalPriceEl.classList.add("animate");
-    setTimeout(() => totalPriceEl.classList.remove("animate"), 200);
-}
-
-function animatePrice(start, end, duration) {
-    const startTime = performance.now();
-    function animate(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const value = start + (end - start) * progress;
-        totalPriceEl.textContent = `Общо: ${value.toFixed(2)}лв`;
-        if (progress < 1) requestAnimationFrame(animate);
-    }
-    requestAnimationFrame(animate);
-}
-
-// Проверка на наличност за избрани дати
-function checkAvailability() {
-    const date = dateInput.value;
-    if (!date) return;
-    const bookedTimes = bookings.filter(b => b.date === date).map(b => b.time);
-    timeButtons.forEach(btn => {
-        if (bookedTimes.includes(btn.dataset.time)) {
-            btn.disabled = true;
-            btn.classList.remove("active");
-        } else {
-            btn.disabled = false;
-        }
+// Check availability based on Firestore bookings
+function checkAvailability(){
+    const date=dateInput.value;
+    if(!date) return;
+    const bookedTimes=bookings.filter(b=>b.date===date).map(b=>b.time);
+    timeButtons.forEach(btn=>{
+        if(bookedTimes.includes(btn.dataset.time)){btn.disabled=true;btn.classList.remove("active");}
+        else{btn.disabled=false;}
     });
 }
-dateInput.addEventListener("change", checkAvailability);
 
-// Запазване на час чрез Vercel API
-bookBtn.addEventListener("click", async () => {
-    const name = document.getElementById("name").value;
-    const phone = document.getElementById("phone").value;
-    const selectedServices = Array.from(serviceOptions)
-        .filter(opt => opt.classList.contains("active"))
-        .map(opt => {
-            const count = parseInt(opt.querySelector('.counter')?.textContent) || 1;
-            return count > 1 
-                ? `${opt.textContent.replace(/\d+[,\.]?\d*лв.*/, '').trim()} x${count}` 
-                : opt.textContent.replace(/\d+[,\.]?\d*лв.*/, '').trim();
-        });
-    const date = dateInput.value;
-    const time = document.querySelector(".time-btn.active")?.dataset.time;
-    const design = document.getElementById("design").files[0]?.name || "";
+// Load bookings from Firestore
+async function loadBookings(){
+    try{
+        const res=await fetch("/api/book");
+        const data=await res.json();
+        bookings=data.bookings||[];
+        checkAvailability();
+    }catch(err){console.error(err);}
+}
+loadBookings();
 
-    if (!name || !phone || !date || !time || selectedServices.length === 0) {
-        alert("❌ Моля, попълнете всички задължителни полета.");
-        return;
-    }
+// Book button
+bookBtn.addEventListener("click",async()=>{
+    const name=document.getElementById("name").value;
+    const phone=document.getElementById("phone").value;
+    const selectedServices=Array.from(serviceOptions).filter(opt=>opt.classList.contains("active")).map(opt=>{
+        const count=parseInt(opt.querySelector('.counter')?.textContent)||1;
+        return count>1 ? `${opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim()} x${count}` : opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim();
+    });
+    const date=dateInput.value;
+    const time=document.querySelector(".time-btn.active")?.dataset.time;
+    const design=document.getElementById("design").files[0]?.name||"";
+    const email=document.getElementById("email")?.value||"";
 
-    try {
-        const res = await fetch("/api/book", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name,
-                phone,
-                services: selectedServices,
-                date,
-                time,
-                design
-            })
-        });
+    if(!name||!phone||!date||!time||selectedServices.length===0){alert("❌ Моля, попълнете всички задължителни полета.");return;}
 
-        const data = await res.json();
-
-        if (res.ok) {
+    try{
+        const res=await fetch("/api/book",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,phone,services:selectedServices,date,time,design,clientEmail:email})});
+        const data=await res.json();
+        if(res.ok){
             alert(`✅ ${data.message}`);
-            
-            // След успешна заявка, нулираме формата
             document.getElementById("bookingForm").reset();
-            serviceOptions.forEach(opt => {
-                opt.classList.remove("active");
-                const counter = opt.querySelector('.counter');
-                if(counter) counter.style.display = 'none';
-            });
+            serviceOptions.forEach(opt=>{opt.classList.remove("active");const counter=opt.querySelector('.counter');if(counter)counter.style.display='none';});
             updatePrice();
-            checkAvailability();
-        } else {
-            alert(`❌ Грешка: ${data.error || "Опитайте пак"}`);
-        }
-    } catch (err) {
-        console.error(err);
-        alert("❌ Грешка при свързване със сървъра.");
-    }
+            loadBookings(); // Refresh booked times
+        } else {alert(`❌ Грешка: ${data.error||"Опитайте пак"}`);}
+    }catch(err){console.error(err);alert("❌ Грешка при свързване със сървъра.");}
 });
-
 </script>
 </body>
 </html>

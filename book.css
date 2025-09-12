@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 body {
     font-family: Arial, sans-serif;
     background: linear-gradient(135deg, #f8d7e3, #fdeef4);
@@ -78,4 +79,86 @@ body {
   .book-btn:hover {
     background: #ad1457;
   }
+=======
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #f8d7e3, #fdeef4);
+    margin: 0;
+    padding: 0;
+  }
+  
+  .booking-container {
+    max-width: 500px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+  
+  h1 {
+    text-align: center;
+    color: #c2185b;
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  label {
+    font-weight: bold;
+    color: #444;
+  }
+  
+  input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
+  
+  .time-slots {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  
+  .time-btn {
+    flex: 1;
+    margin: 0 5px;
+    padding: 10px;
+    border: none;
+    background: #f48fb1;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .time-btn.active {
+    background: #c2185b;
+  }
+  
+  .time-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .book-btn {
+    width: 100%;
+    padding: 12px;
+    background: #c2185b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .book-btn:hover {
+    background: #ad1457;
+  }
+>>>>>>> ab64c21 ( Please enter the commit message for your changes. Lines starting)
   

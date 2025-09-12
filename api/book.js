@@ -1,32 +1,69 @@
-import nodemailer from "nodemailer";
+import { initializeApp, cert } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
+import sgMail from "@sendgrid/mail";
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+// Инициализация на Firestore (използва твоя JSON ключ от Vercel Environment Variable)
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+initializeApp({ credential: cert(serviceAccount) });
+
+const db = getFirestore();
+const bookingsCollection = db.collection("bookings");
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
-    const { name, phone, date, time, services } = req.body;
-
-    // Създай имейл към маникюристката
-    let transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: "manikyristka@example.com",
-      subject: `Нов час - ${date} ${time}`,
-      text: `Име: ${name}\nТелефон: ${phone}\nУслуги: ${services.join(", ")}`
-    };
-
     try {
-      await transporter.sendMail(mailOptions);
-      res.status(200).json({ message: "Часът е запазен и имейлът е изпратен!" });
-    } catch (error) {
-      res.status(500).json({ error: "Грешка при изпращане на имейл" });
+      const { name, phone, services, date, time, design, clientEmail } = req.body;
+
+      // Проверка за зает час
+      const snapshot = await bookingsCollection
+        .where("date", "==", date)
+        .where("time", "==", time)
+        .get();
+
+      if (!snapshot.empty) {
+        return res.status(400).json({ error: "Този час вече е зает" });
+      }
+
+      // Запазване на резервацията
+      await bookingsCollection.add({ name, phone, services, date, time, design, clientEmail });
+
+      // Изпращане на имейл на техник
+      await sgMail.send({
+        to: process.env.TECH_EMAIL,
+        from: process.env.SENDGRID_FROM_EMAIL,
+        subject: `Нов запис: ${name} — ${date} ${time}`,
+        text: `Име: ${name}\nТелефон: ${phone}\nУслуги: ${services.join(", ")}\nДата: ${date} ${time}`
+      });
+
+      // Изпращане на имейл на клиент
+      if (clientEmail) {
+        await sgMail.send({
+          to: clientEmail,
+          from: process.env.SENDGRID_FROM_EMAIL,
+          subject: `Потвърждение на час: ${date} ${time}`,
+          text: `Здравей ${name},\nВашият час е записан: ${date} ${time}\nУслуги: ${services.join(", ")}`
+        });
+      }
+
+      return res.status(200).json({ message: "Часът е запазен!" });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Server error", details: err.message });
     }
-  } else {
-    res.status(405).json({ message: "Методът не е разрешен" });
   }
+
+  if (req.method === "GET") {
+    try {
+      const snapshot = await bookingsCollection.get();
+      const bookings = snapshot.docs.map(doc => doc.data());
+      return res.status(200).json({ bookings });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Server error", details: err.message });
+    }
+  }
+
+  res.status(405).json({ error: "Method not allowed" });
 }
