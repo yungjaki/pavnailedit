@@ -99,93 +99,148 @@ const totalPriceEl = document.getElementById("totalPrice");
 let currentTotal = 0;
 
 // Initialize Flatpickr
-flatpickr("#date", {locale:"bg", minDate:"today", dateFormat:"d.m.Y"});
+flatpickr("#date", { locale: "bg", minDate: "today", dateFormat: "d.m.Y" });
 
 // Time button selection
 timeButtons.forEach(btn => {
     btn.addEventListener("click", () => {
+        if (btn.disabled) return; // не позволявай да се избира зает час
         timeButtons.forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
     });
 });
 
-// Service selection and counters (същото като преди)
+// Service selection and counters
 const countableServices = {"1 нокът":5,"3D цветя":4,"Панделка":4};
 serviceOptions.forEach(opt => {
     const serviceName = opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim();
     if(countableServices[serviceName]){
-        const counter=document.createElement('div');
+        const counter = document.createElement('div');
         counter.classList.add('counter');
-        counter.textContent='1';
-        counter.style.display='none';
+        counter.textContent = '1';
+        counter.style.display = 'none';
         opt.appendChild(counter);
-        opt.addEventListener('click',()=>{
+        opt.addEventListener('click', () => {
             if(!opt.classList.contains('active')){
                 opt.classList.add('active');
-                counter.style.display='flex';
-                counter.textContent='1';
+                counter.style.display = 'flex';
+                counter.textContent = '1';
             } else {
-                let count=parseInt(counter.textContent);
-                const maxCount=countableServices[serviceName];
-                if(count<maxCount){count++;counter.textContent=count;}
-                else {opt.classList.remove('active');counter.style.display='none';counter.textContent='1';}
+                let count = parseInt(counter.textContent);
+                const maxCount = countableServices[serviceName];
+                if(count < maxCount) { count++; counter.textContent = count; }
+                else { opt.classList.remove('active'); counter.style.display = 'none'; counter.textContent = '1'; }
             }
             updatePrice();
         });
-    } else {opt.addEventListener('click',()=>{opt.classList.toggle('active');updatePrice();});}
+    } else {
+        opt.addEventListener('click', () => { opt.classList.toggle('active'); updatePrice(); });
+    }
 });
 
-function updatePrice(){let total=0;serviceOptions.forEach(opt=>{if(opt.classList.contains("active")){const count=parseInt(opt.querySelector('.counter')?.textContent)||1;total+=parseFloat(opt.dataset.price)*count;}});animatePrice(currentTotal,total,300);currentTotal=total;totalPriceEl.classList.add("animate");setTimeout(()=>totalPriceEl.classList.remove("animate"),200);}
-function animatePrice(start,end,duration){const startTime=performance.now();function animate(currentTime){const elapsed=currentTime-startTime;const progress=Math.min(elapsed/duration,1);const value=start+(end-start)*progress;totalPriceEl.textContent=`Общо: ${value.toFixed(2)}лв`;if(progress<1)requestAnimationFrame(animate);}requestAnimationFrame(animate);}
+function updatePrice() {
+    let total = 0;
+    serviceOptions.forEach(opt => {
+        if(opt.classList.contains("active")){
+            const count = parseInt(opt.querySelector('.counter')?.textContent) || 1;
+            total += parseFloat(opt.dataset.price) * count;
+        }
+    });
+    animatePrice(currentTotal, total, 300);
+    currentTotal = total;
+    totalPriceEl.classList.add("animate");
+    setTimeout(()=>totalPriceEl.classList.remove("animate"),200);
+}
 
-// Check availability based on Firestore bookings
-function checkAvailability(){
-    const date=dateInput.value;
+function animatePrice(start, end, duration){
+    const startTime = performance.now();
+    function animate(currentTime){
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const value = start + (end - start) * progress;
+        totalPriceEl.textContent = `Общо: ${value.toFixed(2)}лв`;
+        if(progress < 1) requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+}
+
+// --- Проверка на заетите часове ---
+function checkAvailability() {
+    const date = dateInput.value;
     if(!date) return;
-    const bookedTimes=bookings.filter(b=>b.date===date).map(b=>b.time);
-    timeButtons.forEach(btn=>{
-        if(bookedTimes.includes(btn.dataset.time)){btn.disabled=true;btn.classList.remove("active");}
-        else{btn.disabled=false;}
+
+    const bookedTimes = bookings
+        .filter(b => b.date === date)
+        .map(b => b.time);
+
+    timeButtons.forEach(btn => {
+        if(bookedTimes.includes(btn.dataset.time)){
+            btn.disabled = true;
+            btn.classList.remove("active");
+        } else {
+            btn.disabled = false;
+        }
     });
 }
 
-// Load bookings from Firestore
-async function loadBookings(){
-    try{
-        const res=await fetch("/api/book");
-        const data=await res.json();
-        bookings=data.bookings||[];
+// При промяна на датата → обновява наличните часове
+dateInput.addEventListener("change", () => {
+    checkAvailability();
+});
+
+// Зареждане на вече записаните часове от Firestore
+async function loadBookings() {
+    try {
+        const res = await fetch("/api/book");
+        const data = await res.json();
+        bookings = data.bookings || [];
         checkAvailability();
-    }catch(err){console.error(err);}
+    } catch(err) {
+        console.error(err);
+    }
 }
 loadBookings();
 
-// Book button
-bookBtn.addEventListener("click",async()=>{
-    const name=document.getElementById("name").value;
-    const phone=document.getElementById("phone").value;
-    const selectedServices=Array.from(serviceOptions).filter(opt=>opt.classList.contains("active")).map(opt=>{
-        const count=parseInt(opt.querySelector('.counter')?.textContent)||1;
-        return count>1 ? `${opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim()} x${count}` : opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim();
-    });
-    const date=dateInput.value;
-    const time=document.querySelector(".time-btn.active")?.dataset.time;
-    const design=document.getElementById("design").files[0]?.name||"";
-    const email=document.getElementById("email")?.value||"";
+// --- Записване на час ---
+bookBtn.addEventListener("click", async () => {
+    const name = document.getElementById("name").value;
+    const phone = document.getElementById("phone").value;
+    const selectedServices = Array.from(serviceOptions)
+        .filter(opt => opt.classList.contains("active"))
+        .map(opt => {
+            const count = parseInt(opt.querySelector('.counter')?.textContent) || 1;
+            return count > 1 ? `${opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim()} x${count}` : opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim();
+        });
+    const date = dateInput.value;
+    const time = document.querySelector(".time-btn.active")?.dataset.time;
+    const design = document.getElementById("design").files[0]?.name || "";
+    const email = document.getElementById("email")?.value || "";
 
-    if(!name||!phone||!date||!time||selectedServices.length===0){alert("❌ Моля, попълнете всички задължителни полета.");return;}
+    if(!name || !phone || !date || !time || selectedServices.length === 0) {
+        alert("❌ Моля, попълнете всички задължителни полета.");
+        return;
+    }
 
-    try{
-        const res=await fetch("/api/book",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,phone,services:selectedServices,date,time,design,clientEmail:email})});
-        const data=await res.json();
+    try {
+        const res = await fetch("/api/book", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({name, phone, services: selectedServices, date, time, design, clientEmail: email})
+        });
+        const data = await res.json();
         if(res.ok){
             alert(`✅ ${data.message}`);
             document.getElementById("bookingForm").reset();
-            serviceOptions.forEach(opt=>{opt.classList.remove("active");const counter=opt.querySelector('.counter');if(counter)counter.style.display='none';});
+            serviceOptions.forEach(opt => { opt.classList.remove("active"); const counter = opt.querySelector('.counter'); if(counter) counter.style.display = 'none'; });
             updatePrice();
-            loadBookings(); // Refresh booked times
-        } else {alert(`❌ Грешка: ${data.error||"Опитайте пак"}`);}
-    }catch(err){console.error(err);alert("❌ Грешка при свързване със сървъра.");}
+            await loadBookings(); // обновява бутоните след запис
+        } else {
+            alert(`❌ Грешка: ${data.error || "Опитайте пак"}`);
+        }
+    } catch(err){
+        console.error(err);
+        alert("❌ Грешка при свързване със сървъра.");
+    }
 });
 </script>
 </body>
