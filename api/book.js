@@ -17,7 +17,7 @@ const bookingsCollection = db.collection("bookings");
 module.exports = async function handler(req, res) {
   if (req.method === "POST") {
     try {
-      const { name, phone, services, date, time, design, clientEmail, totalPrice } = req.body;
+      const { name, phone, services, date, time, design, clientEmail} = req.body;
 
       // Проверка за зает час
       const snapshot = await bookingsCollection
@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
       }
 
       // Записване на резервацията
-      await bookingsCollection.add({ name, phone, services, date, time, design, clientEmail, totalPrice });
+      await bookingsCollection.add({ name, phone, services, date, time, design, clientEmail});
 
       // Имейл до техник
       await sgMail.send({
