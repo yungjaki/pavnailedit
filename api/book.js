@@ -32,44 +32,57 @@ module.exports = async function handler(req, res) {
       // Записване на резервацията
       await bookingsCollection.add({ name, phone, services, date, time, design, clientEmail});
 
-      // Имейл до техник
-      await sgMail.send({
-        to: process.env.TECH_EMAIL,
-        from: process.env.SENDGRID_FROM_EMAIL,
-        subject: `Нов запис: ${name} — ${date} ${time}`,
-        html: `
-          <div style="font-family:Arial,sans-serif;background:#f8f9fa;padding:20px;border-radius:8px;">
-            <h2 style="color:#2c3e50;">Нова резервация</h2>
-            <p><b>Име:</b> ${name}</p>
-            <p><b>Телефон:</b> ${phone}</p>
-            <p><b>Дата и час:</b> ${date} ${time}</p>
-            <p><b>Услуги:</b> ${services.join(", ")}</p>
-            <p><b>Цена:</b> ${totalPrice} лв</p>
-          </div>`
-      });
+// Имейл до техника
+await sgMail.send({
+  to: process.env.TECH_EMAIL,
+  from: process.env.SENDGRID_FROM_EMAIL,
+  subject: `Нов запис: ${name} — ${date} ${time}`,
+  html: `
+  <div style="font-family: 'Roboto', sans-serif; background:#fff0f4; padding:25px; border-radius:20px; color:#2c2c2c; max-width:600px; margin:auto;">
+    <h2 style="color:#ff6ec4; text-align:center;">💅🏻 Нов запис на час</h2>
+    <div style="margin-top:15px;">
+      <p><strong>👤 Име:</strong> ${name}</p>
+      <p><strong>📞 Телефон:</strong> ${phone}</p>
+      <p><strong>📅 Дата:</strong> ${date}</p>
+      <p><strong>⏰ Час:</strong> ${time}</p>
+    </div>
+    <h3 style="color:#f9a1c2; margin-top:20px;">✨ Услуги:</h3>
+    <ul style="padding-left:20px; margin-top:10px; color:#2c2c2c;">
+      ${services.map(s => `<li style="margin:5px 0;">💖 ${s}</li>`).join("")}
+    </ul>
+  </div>
+  `
+});
 
-      // Имейл до клиент
-      if (clientEmail) {
-        await sgMail.send({
-          to: clientEmail,
-          from: process.env.SENDGRID_FROM_EMAIL,
-          subject: `Потвърждение на час: ${date} ${time}`,
-          html: `
-            <div style="font-family:Arial,sans-serif;background:#f8f9fa;padding:20px;border-radius:8px;">
-              <h2 style="color:#27ae60;">Здравей, ${name}!</h2>
-              <p>Вашият час е записан:</p>
-              <ul>
-                <li><b>Дата:</b> ${date}</li>
-                <li><b>Час:</b> ${time}</li>
-                <li><b>Услуги:</b> ${services.join(", ")}</li>
-              </ul>
-              <p><b>Обща цена:</b> ${totalPrice} лв</p>
-              <button style="background:#27ae60;color:white;border:none;padding:10px 20px;border-radius:5px;cursor:pointer;">
-                Виж подробности
-              </button>
-            </div>`
-        });
-      }
+// Имейл до клиент
+if (clientEmail) {
+  await sgMail.send({
+    to: clientEmail,
+    from: process.env.SENDGRID_FROM_EMAIL,
+    subject: `Потвърждение на час: ${date} ${time}`,
+    html: `
+    <div style="font-family: 'Roboto', sans-serif; background:#fff0f4; padding:25px; border-radius:20px; color:#2c2c2c; max-width:600px; margin:auto;">
+      <h2 style="color:#ff6ec4; text-align:center;">💅🏻 Здравей, ${name}!</h2>
+      <p style="text-align:center; font-size:16px;">Вашият час е успешно запазен.</p>
+      <div style="margin-top:15px; padding:15px; background:#f9d0d8; border-radius:15px;">
+        <p><strong>📅 Дата:</strong> ${date}</p>
+        <p><strong>⏰ Час:</strong> ${time}</p>
+      </div>
+      <h3 style="color:#f9a1c2; margin-top:20px;">✨ Избрани услуги:</h3>
+      <ul style="padding-left:20px; margin-top:10px; color:#2c2c2c;">
+        ${services.map(s => `<li style="margin:5px 0;">💖 ${s}</li>`).join("")}
+      </ul>
+      <p style="margin-top:25px; text-align:center; font-weight:600; color:#ff6ec4;">Очакваме Ви! 🥰</p>
+      <div style="margin-top:20px; text-align:center;">
+        <span style="background:linear-gradient(90deg,#f8b7d1,#f9a1c2); padding:12px 25px; border-radius:50px; color:#fff; font-weight:600; display:inline-block;">
+          PavNailedIt 💅🏻
+        </span>
+      </div>
+    </div>
+    `
+  });
+}
+
 
       return res.status(200).json({ message: "Часът е запазен!" });
     } catch (err) {
