@@ -8,7 +8,7 @@ import fs from "fs";
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Път до локалния JSON файл с ключа
-const serviceAccountPath = path.join(process.cwd(), "../bookingthing.json");
+const serviceAccountPath = path.join(process.cwd(), "bookingthing.json");
 const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
 
 // Проверка дали Firebase вече е инициализиран
