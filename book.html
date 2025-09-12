@@ -221,13 +221,11 @@ bookBtn.addEventListener("click", async () => {
         return;
     }
 
-    try {
-        const totalPrice = currentTotal.toFixed(2);
-        
+    try { 
         const res = await fetch("/api/book", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({name, phone, services: selectedServices, date, time, design, clientEmail: email, totalprice})
+            body: JSON.stringify({name, phone, services: selectedServices, date, time, design, clientEmail: email})
         });
         const data = await res.json();
         if(res.ok){
