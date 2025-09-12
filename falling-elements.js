@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // 🎨 Символи за празници / сезони
 const THEMES = {
     newYear: ["🎆", "🎇", "🥂", "🎉"],
@@ -148,4 +147,3 @@ function createFallingElement() {
 }
 
 setInterval(createFallingElement, INTERVAL);
->>>>>>> ab64c21 ( Please enter the commit message for your changes. Lines starting)
