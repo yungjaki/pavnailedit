@@ -5,11 +5,13 @@ import sgMail from "@sendgrid/mail";
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Инициализация на Firestore (използва твоя JSON ключ от Vercel Environment Variable)
-const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, 'base64').toString('utf8'));
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
 initializeApp({ credential: cert(serviceAccount) });
 
 const db = getFirestore();
 const bookingsCollection = db.collection("bookings");
+
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
