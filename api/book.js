@@ -72,10 +72,10 @@ if (clientEmail) {
       <ul style="padding-left:20px; margin-top:10px; color:#2c2c2c;">
         ${services.map(s => `<li style="margin:5px 0;">💖 ${s}</li>`).join("")}
       </ul>
-      <p style="margin-top:25px; text-align:center; font-weight:600; color:#ff6ec4;">Очакваме Ви! 🥰</p>
+      <p style="margin-top:25px; text-align:center; font-weight:600; color:#ff6ec4;">Очаквам те! 💞🥰</p>
       <div style="margin-top:20px; text-align:center;">
         <span style="background:linear-gradient(90deg,#f8b7d1,#f9a1c2); padding:12px 25px; border-radius:50px; color:#fff; font-weight:600; display:inline-block;">
-          PavNailedIt 💅🏻
+          Pav.Nailed.It 💅🏻
         </span>
       </div>
     </div>
