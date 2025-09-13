@@ -44,7 +44,7 @@ button:hover {transform:scale(1.05);box-shadow:0 8px 20px rgba(255,110,196,0.4);
 <label for="phone">Телефон:</label>
 <input type="tel" id="phone" placeholder="Телефонен номер">
 <label for="email">Имейл (по желание):</label>
-<input type="email" id="email" placeholder="example@mail.com">
+<input type="email" id="email" placeholder="example@mail.com" required>
 
 <label for="service">Услуга:</label>
 <div id="services">
@@ -214,9 +214,9 @@ bookBtn.addEventListener("click", async () => {
     const date = dateInput.value;
     const time = document.querySelector(".time-btn.active")?.dataset.time;
     const design = document.getElementById("design").files[0]?.name || "";
-    const email = document.getElementById("email")?.value || "";
+    const email = document.getElementById("email").value.trim";
 
-    if(!name || !phone || !date || !time || selectedServices.length === 0) {
+    if(!name || !phone || !date || !time || selectedServices.length === 0 || !email) {
         alert("❌ Моля, попълнете всички задължителни полета.");
         return;
     }
