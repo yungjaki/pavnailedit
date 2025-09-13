@@ -25,6 +25,23 @@ oAuth2Client.setCredentials({
 });
 const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
 
+// ---- Функция за конвертиране на string в Date ----
+function parseDateTime(date, time) {
+  // Очаква date = "YYYY-MM-DD" или "DD.MM.YYYY" и time = "HH:MM"
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    const [hours, minutes] = time.split(":");
+    return new Date(`${date}T${hours.padStart(2, "0")}:${(minutes||"00").padStart(2,"0")}:00`);
+  }
+  if (date.includes(".") || date.includes("/")) {
+    const parts = date.split(/\.|\//);
+    const [day, month, year] = parts;
+    const isoDate = `${year}-${month.padStart(2,"0")}-${day.padStart(2,"0")}`;
+    const [hours, minutes] = time.split(":");
+    return new Date(`${isoDate}T${hours.padStart(2,"0")}:${(minutes||"00").padStart(2,"0")}:00`);
+  }
+  throw new Error("Unsupported date format: " + date);
+}
+
 // MAIN HANDLER
 module.exports = async function handler(req, res) {
   if (req.method === "POST") {
@@ -44,8 +61,8 @@ module.exports = async function handler(req, res) {
       // Записване на резервацията в Firestore
       await bookingsCollection.add({ name, phone, services, date, time, design, clientEmail, totalPrice });
 
-      // Създаване на дата и час за календара
-      const startDateTime = new Date(`${date}T${time}:00`);
+      // Създаване на Date обекти за Google Calendar
+      const startDateTime = parseDateTime(date, time);
       const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // +1 час
 
       // Събитие в Google Calendar на маникюристката
@@ -56,7 +73,7 @@ module.exports = async function handler(req, res) {
           description: `Услуги: ${services.join(", ")}\nТелефон: ${phone}\nОбщо: ${totalPrice} лв`,
           start: { dateTime: startDateTime.toISOString(), timeZone: "Europe/Sofia" },
           end: { dateTime: endDateTime.toISOString(), timeZone: "Europe/Sofia" },
-          attendees: [{ email: clientEmail }],
+          attendees: clientEmail ? [{ email: clientEmail }] : [],
         },
       });
 
@@ -67,7 +84,7 @@ module.exports = async function handler(req, res) {
         .toISOString()
         .replace(/[-:]/g, "")
         .split(".")[0]}Z&details=${encodeURIComponent(
-        "Маникюр при Pav.Nailed.It 💅🏻"
+        "Nails by Pav.Nailed.It 💅🏻"
       )}&location=${encodeURIComponent("Студио Pav.Nailed.It")}&sf=true&output=xml`;
 
       // Имейл до техника
