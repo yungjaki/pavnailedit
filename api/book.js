@@ -27,7 +27,6 @@ const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
 
 // ---- Функция за конвертиране на string в Date ----
 function parseDateTime(date, time) {
-  // date = "DD.MM.YYYY" или "YYYY-MM-DD", time = "HH:MM"
   let day, month, year;
   if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     [year, month, day] = date.split("-");
@@ -36,8 +35,6 @@ function parseDateTime(date, time) {
   } else throw new Error("Unsupported date format: " + date);
 
   const [hours, minutes] = time.split(":").map(Number);
-
-  // Date обект в локално време
   return new Date(year, month - 1, day, hours, minutes, 0);
 }
 
@@ -71,8 +68,8 @@ await calendar.events.insert({
   requestBody: {
     summary: `Маникюр: ${name}`,
     description: `Услуги: ${services.join(", ")}\nТелефон: ${phone}\nОбщо: ${totalPrice} лв`,
-    start: { dateTime: startDateTime.toLocaleString("sv-SE", { timeZone: "Europe/Sofia" }), timeZone: "Europe/Sofia" },
-    end: { dateTime: endDateTime.toLocaleString("sv-SE", { timeZone: "Europe/Sofia" }), timeZone: "Europe/Sofia" },
+start: { dateTime: startDateTime.toISOString(), timeZone: "Europe/Sofia" },
+end: { dateTime: endDateTime.toISOString(), timeZone: "Europe/Sofia" },
     attendees: clientEmail ? [{ email: clientEmail }] : [],
   },
 });
