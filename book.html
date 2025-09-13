@@ -104,6 +104,7 @@ const fp = flatpickr("#date", {
     minDate: "today", 
     dateFormat: "d.m.Y",
     disable: [], // тук ще добавяме напълно заетите дати
+    disableMobile: true, // <--- добави тази линия
     onChange: checkAvailability
 });
 
