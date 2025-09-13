@@ -38,6 +38,20 @@ function parseDateTime(date, time) {
   return new Date(year, month - 1, day, hours, minutes, 0);
 }
 
+// ---- Форматиране за Google Calendar с локална часова зона ----
+function formatDateForGoogleCalendar(date) {
+  const pad = (n) => n.toString().padStart(2, "0");
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+  return {
+    dateTime: `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`,
+    timeZone: "Europe/Sofia",
+  };
+}
 
 // MAIN HANDLER
 module.exports = async function handler(req, res) {
@@ -63,17 +77,16 @@ module.exports = async function handler(req, res) {
       const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // +1 час
 
       // Събитие в Google Calendar на маникюристката
-await calendar.events.insert({
-  calendarId: process.env.TECH_CALENDAR_ID,
-  requestBody: {
-    summary: `Маникюр: ${name}`,
-    description: `Услуги: ${services.join(", ")}\nТелефон: ${phone}\nОбщо: ${totalPrice} лв`,
-start: { dateTime: startDateTime.toISOString(), timeZone: "Europe/Sofia" },
-end: { dateTime: endDateTime.toISOString(), timeZone: "Europe/Sofia" },
-    attendees: clientEmail ? [{ email: clientEmail }] : [],
-  },
-});
-
+      await calendar.events.insert({
+        calendarId: process.env.TECH_CALENDAR_ID,
+        requestBody: {
+          summary: `Маникюр: ${name}`,
+          description: `Услуги: ${services.join(", ")}\nТелефон: ${phone}\nОбщо: ${totalPrice} лв`,
+          start: formatDateForGoogleCalendar(startDateTime),
+          end: formatDateForGoogleCalendar(endDateTime),
+          attendees: clientEmail ? [{ email: clientEmail }] : [],
+        },
+      });
 
       // Линк за добавяне в Google Calendar (за клиента)
       const calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Маникюр:+${encodeURIComponent(
