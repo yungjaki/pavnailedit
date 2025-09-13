@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="bg">
 <head>
 <meta charset="UTF-8">
@@ -16,7 +16,7 @@ input[type=text], input[type=tel], input[type=email], select {width:100%;padding
 .time-buttons {display:flex;gap:1rem;margin-top:1rem;}
 .time-btn {flex:1;padding:0.7rem;border-radius:50px;border:1px solid #f8b7d1;background:#f9d0d8;font-weight:500;cursor:pointer;transition:all 0.3s;}
 .time-btn.active {background:#ff6ec4;color:#fff;box-shadow:0 5px 15px rgba(255,110,196,0.4);}
-.time-btn:disabled {opacity:0.5;cursor:not-allowed;}
+.time-btn:disabled {opacity:0.5;cursor:not-allowed;background:#ff6ec4;color:#fff;}
 #services, #addons {margin-top:1rem;}
 .service-option {display:inline-block;margin-right:1rem;margin-top:0.5rem;cursor:pointer;background:#f8b7d1;padding:0.5rem 0.8rem;border-radius:15px;position:relative;transition:all 0.3s ease;}
 .service-option .counter {position:absolute;top:-5px;right:-5px;background:#ff6ec4;color:#fff;font-size:0.8rem;font-weight:600;width:20px;height:20px;display:none;justify-content:center;align-items:center;border-radius:50%;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,0.2);transition:transform 0.2s;}
@@ -103,8 +103,8 @@ const fp = flatpickr("#date", {
     locale: "bg", 
     minDate: "today", 
     dateFormat: "d.m.Y",
-    disable: [], // тук ще добавяме напълно заетите дати
-    disableMobile: true, // <--- добави тази линия
+    disable: [],
+    disableMobile: true,
     onChange: checkAvailability
 });
 
@@ -112,7 +112,8 @@ const fp = flatpickr("#date", {
 timeButtons.forEach(btn => {
     btn.addEventListener("click", () => {
         if (btn.disabled) return;
-        timeButtons.forEach(b => b.classList.remove("active"));
+        // премахваме active само от бутони, които не са disabled
+        timeButtons.forEach(b => { if(!b.disabled) b.classList.remove("active"); });
         btn.classList.add("active");
     });
 });
@@ -176,12 +177,10 @@ function checkAvailability() {
     const date = dateInput.value;
     if(!date) return;
 
-    // Вземаме всички часове за избраната дата
     const bookedTimes = bookings
         .filter(b => b.date === date)
         .map(b => b.time);
 
-    // Проверка и визуално блокиране на бутоните
     timeButtons.forEach(btn => {
         if(bookedTimes.includes(btn.dataset.time)){
             btn.disabled = true;
@@ -197,9 +196,8 @@ function checkAvailability() {
         }
     });
 
-    // Блокиране на всички напълно заети дати
     const fullyBookedDates = [];
-    const dates = [...new Set(bookings.map(b => b.date))]; // уникални дати
+    const dates = [...new Set(bookings.map(b => b.date))];
     dates.forEach(d => {
         const timesOnDate = bookings.filter(b => b.date === d).map(b => b.time);
         const allTimes = Array.from(timeButtons).map(b => b.dataset.time);
@@ -210,7 +208,6 @@ function checkAvailability() {
 
     fp.set('disable', fullyBookedDates);
 }
-
 
 // Зареждане на вече записаните часове от Firestore
 async function loadBookings() {
