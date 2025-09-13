@@ -185,28 +185,31 @@ function checkAvailability() {
         if(bookedTimes.includes(btn.dataset.time)){
             btn.disabled = true;
             btn.textContent = "Зает";
-            btn.style.background = "#ccc";
+            btn.style.background = "#ff6ec4";
             btn.style.color = "#fff";
             btn.classList.remove("active");
         } else {
             btn.disabled = false;
-            // възстановяване на оригиналния стил
-            if(btn.dataset.time === "10:00") btn.textContent = "10:00";
-            if(btn.dataset.time === "14:00") btn.textContent = "14:00";
+            btn.textContent = btn.dataset.time;
             btn.style.background = "#f9d0d8";
             btn.style.color = "#2c2c2c";
         }
     });
 
-    // Проверка за напълно заетите дати → ако всички часове са заети
-    const times = Array.from(timeButtons).map(b => b.dataset.time);
-    const allBooked = times.every(t => bookedTimes.includes(t));
-    if(allBooked){
-        fp.set('disable', [date]); // блокира датата в календара
-    } else {
-        fp.set('disable', fp.config.disable.filter(d => d !== date));
-    }
+    // Блокиране на всички напълно заети дати
+    const fullyBookedDates = [];
+    const dates = [...new Set(bookings.map(b => b.date))]; // уникални дати
+    dates.forEach(d => {
+        const timesOnDate = bookings.filter(b => b.date === d).map(b => b.time);
+        const allTimes = Array.from(timeButtons).map(b => b.dataset.time);
+        if(allTimes.every(t => timesOnDate.includes(t))){
+            fullyBookedDates.push(d);
+        }
+    });
+
+    fp.set('disable', fullyBookedDates);
 }
+
 
 // Зареждане на вече записаните часове от Firestore
 async function loadBookings() {
