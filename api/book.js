@@ -75,7 +75,7 @@ await sgMail.send({
     <p style="margin-top:25px; text-align:center; font-weight:600; color:#ff6ec4;">Очаквам те! 💞🥰</p>
     <div style="margin-top:20px; text-align:center;">
       <span style="background:linear-gradient(90deg,#f8b7d1,#f9a1c2); padding:12px 25px; border-radius:50px; color:#fff; font-weight:600; display:inline-block;">
-        Pav.Naile.dIt 💅🏻
+        Pav.Nailed.It 💅🏻
       </span>
     </div>
   </div>
