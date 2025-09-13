@@ -99,12 +99,18 @@ const totalPriceEl = document.getElementById("totalPrice");
 let currentTotal = 0;
 
 // Initialize Flatpickr
-flatpickr("#date", { locale: "bg", minDate: "today", dateFormat: "d.m.Y" });
+const fp = flatpickr("#date", { 
+    locale: "bg", 
+    minDate: "today", 
+    dateFormat: "d.m.Y",
+    disable: [], // тук ще добавяме напълно заетите дати
+    onChange: checkAvailability
+});
 
 // Time button selection
 timeButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-        if (btn.disabled) return; // не позволявай да се избира зает час
+        if (btn.disabled) return;
         timeButtons.forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
     });
@@ -164,29 +170,43 @@ function animatePrice(start, end, duration){
     requestAnimationFrame(animate);
 }
 
-// --- Проверка на заетите часове ---
+// --- Проверка на заетите часове и блокиране на дати ---
 function checkAvailability() {
     const date = dateInput.value;
     if(!date) return;
 
+    // Вземаме всички часове за избраната дата
     const bookedTimes = bookings
         .filter(b => b.date === date)
         .map(b => b.time);
 
+    // Проверка и визуално блокиране на бутоните
     timeButtons.forEach(btn => {
         if(bookedTimes.includes(btn.dataset.time)){
             btn.disabled = true;
+            btn.textContent = "Зает";
+            btn.style.background = "#ccc";
+            btn.style.color = "#fff";
             btn.classList.remove("active");
         } else {
             btn.disabled = false;
+            // възстановяване на оригиналния стил
+            if(btn.dataset.time === "10:00") btn.textContent = "10:00";
+            if(btn.dataset.time === "14:00") btn.textContent = "14:00";
+            btn.style.background = "#f9d0d8";
+            btn.style.color = "#2c2c2c";
         }
     });
-}
 
-// При промяна на датата → обновява наличните часове
-dateInput.addEventListener("change", () => {
-    checkAvailability();
-});
+    // Проверка за напълно заетите дати → ако всички часове са заети
+    const times = Array.from(timeButtons).map(b => b.dataset.time);
+    const allBooked = times.every(t => bookedTimes.includes(t));
+    if(allBooked){
+        fp.set('disable', [date]); // блокира датата в календара
+    } else {
+        fp.set('disable', fp.config.disable.filter(d => d !== date));
+    }
+}
 
 // Зареждане на вече записаните часове от Firestore
 async function loadBookings() {
@@ -222,7 +242,6 @@ bookBtn.addEventListener("click", async () => {
     }
 
     try { 
-
         const totalPrice = currentTotal.toFixed(2);
         const res = await fetch("/api/book", {
             method: "POST",
@@ -235,7 +254,7 @@ bookBtn.addEventListener("click", async () => {
             document.getElementById("bookingForm").reset();
             serviceOptions.forEach(opt => { opt.classList.remove("active"); const counter = opt.querySelector('.counter'); if(counter) counter.style.display = 'none'; });
             updatePrice();
-            await loadBookings(); // обновява бутоните след запис
+            await loadBookings();
         } else {
             alert(`❌ Грешка: ${data.error || "Опитайте пак"}`);
         }
