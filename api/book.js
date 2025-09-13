@@ -126,7 +126,7 @@ module.exports = async function handler(req, res) {
       // ICS съдържание за техниката
       const icsContent = generateICS(name, services, phone, date, time, totalPrice);
 
-      // Имейл до техника с ICS прикачен файл
+      // Имейл до техника с ICS и бутон
       await sgMail.send({
         to: process.env.TECH_EMAIL,
         from: process.env.SENDGRID_FROM_EMAIL,
@@ -143,6 +143,10 @@ module.exports = async function handler(req, res) {
           <p style="font-size:18px; font-weight:700; color:#ff6ec4;">💰 Общо: ${totalPrice} лв</p>
           <div style="margin-top:20px; text-align:center;">
             <p>📅 Можете да добавите часa директно във вашия календар (iCloud / iPhone / Mac):</p>
+            <a href="data:text/calendar;charset=utf8,${encodeURIComponent(icsContent)}" 
+               style="background:linear-gradient(90deg,#f8b7d1,#f9a1c2); padding:12px 25px; border-radius:50px; color:#fff; font-weight:600; text-decoration:none;">
+               📅 Добави в календара
+            </a>
           </div>
         </div>
         `,
