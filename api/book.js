@@ -53,6 +53,31 @@ function formatDateForGoogleCalendar(date) {
   };
 }
 
+// ---- Генериране на ICS файл за iCloud / iPhone ----
+function generateICS(name, services, phone, date, time, totalPrice) {
+  const startDateTime = parseDateTime(date, time);
+  const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 1 час
+  const pad = (n) => n.toString().padStart(2, "0");
+  const formatICSDate = (d) =>
+    `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(
+      d.getUTCHours()
+    )}${pad(d.getUTCMinutes())}00Z`;
+
+  return `
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PavNailedIt//Booking//BG
+BEGIN:VEVENT
+UID:${Date.now()}@pavnailedit.com
+SUMMARY:Маникюр: ${name}
+DESCRIPTION:Услуги: ${services.join(", ")}\\nТелефон: ${phone}\\nОбщо: ${totalPrice} лв
+DTSTART:${formatICSDate(startDateTime)}
+DTEND:${formatICSDate(endDateTime)}
+END:VEVENT
+END:VCALENDAR
+`.trim();
+}
+
 // MAIN HANDLER
 module.exports = async function handler(req, res) {
   if (req.method === "POST") {
@@ -98,7 +123,10 @@ module.exports = async function handler(req, res) {
         "Nails by Pav.Nailed.It 💅🏻"
       )}&location=${encodeURIComponent("Студио Pav.Nailed.It")}&sf=true&output=xml`;
 
-      // Имейл до техника
+      // ICS съдържание за техниката
+      const icsContent = generateICS(name, services, phone, date, time, totalPrice);
+
+      // Имейл до техника с ICS прикачен файл
       await sgMail.send({
         to: process.env.TECH_EMAIL,
         from: process.env.SENDGRID_FROM_EMAIL,
@@ -113,8 +141,19 @@ module.exports = async function handler(req, res) {
           <h3 style="color:#f9a1c2;">✨ Услуги:</h3>
           <ul>${services.map((s) => `<li>💖 ${s}</li>`).join("")}</ul>
           <p style="font-size:18px; font-weight:700; color:#ff6ec4;">💰 Общо: ${totalPrice} лв</p>
+          <div style="margin-top:20px; text-align:center;">
+            <p>📅 Можете да добавите часa директно във вашия календар (iCloud / iPhone / Mac):</p>
+          </div>
         </div>
         `,
+        attachments: [
+          {
+            content: Buffer.from(icsContent).toString("base64"),
+            filename: "booking.ics",
+            type: "text/calendar",
+            disposition: "attachment",
+          },
+        ],
       });
 
       // Имейл до клиента
