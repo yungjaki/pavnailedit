@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="bg">
 <head>
 <meta charset="UTF-8">
@@ -214,7 +214,7 @@ bookBtn.addEventListener("click", async () => {
     const date = dateInput.value;
     const time = document.querySelector(".time-btn.active")?.dataset.time;
     const design = document.getElementById("design").files[0]?.name || "";
-    const email = document.getElementById("email").value.trim";
+    const email = document.getElementById("email").value;
 
     if(!name || !phone || !date || !time || selectedServices.length === 0 || !email) {
         alert("❌ Моля, попълнете всички задължителни полета.");
