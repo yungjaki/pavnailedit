@@ -16,7 +16,7 @@ input[type=text], input[type=tel], input[type=email], select {width:100%;padding
 .time-buttons {display:flex;gap:1rem;margin-top:1rem;}
 .time-btn {flex:1;padding:0.7rem;border-radius:50px;border:1px solid #f8b7d1;background:#f9d0d8;font-weight:500;cursor:pointer;transition:all 0.3s;}
 .time-btn.active {background:#ff6ec4;color:#fff;box-shadow:0 5px 15px rgba(255,110,196,0.4);}
-.time-btn:disabled {opacity:0.5;cursor:not-allowed;background:#ff6ec4;color:#fff;}
+.time-btn.disabled-btn {background:#ff6ec4;color:#fff;cursor:not-allowed;opacity:0.5;}
 #services, #addons {margin-top:1rem;}
 .service-option {display:inline-block;margin-right:1rem;margin-top:0.5rem;cursor:pointer;background:#f8b7d1;padding:0.5rem 0.8rem;border-radius:15px;position:relative;transition:all 0.3s ease;}
 .service-option .counter {position:absolute;top:-5px;right:-5px;background:#ff6ec4;color:#fff;font-size:0.8rem;font-weight:600;width:20px;height:20px;display:none;justify-content:center;align-items:center;border-radius:50%;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,0.2);transition:transform 0.2s;}
@@ -112,8 +112,7 @@ const fp = flatpickr("#date", {
 timeButtons.forEach(btn => {
     btn.addEventListener("click", () => {
         if (btn.disabled) return;
-        // премахваме active само от бутони, които не са disabled
-        timeButtons.forEach(b => { if(!b.disabled) b.classList.remove("active"); });
+        timeButtons.forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
     });
 });
@@ -185,14 +184,12 @@ function checkAvailability() {
         if(bookedTimes.includes(btn.dataset.time)){
             btn.disabled = true;
             btn.textContent = "Зает";
-            btn.style.background = "#ff6ec4";
-            btn.style.color = "#fff";
             btn.classList.remove("active");
+            btn.classList.add("disabled-btn");
         } else {
             btn.disabled = false;
             btn.textContent = btn.dataset.time;
-            btn.style.background = "#f9d0d8";
-            btn.style.color = "#2c2c2c";
+            btn.classList.remove("disabled-btn");
         }
     });
 
