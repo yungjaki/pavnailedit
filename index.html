@@ -7,6 +7,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PavNailedIt</title>
     <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Плаващ бутон - центриран в долната част */
+        .floating-book {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: linear-gradient(90deg, #f8b7d1, #f9a1c2);
+            color: #fff;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 25px rgba(249, 161, 194, 0.5);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Когато е активен */
+        .floating-book.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Ховър ефект */
+        .floating-book:hover {
+            transform: translateX(-50%) scale(1.07);
+            box-shadow: 0 10px 30px rgba(249, 161, 194, 0.7);
+        }
+    </style>
 </head>
 <body>
     <img class="image-gradient" src="gradient.png" alt="gradient">
@@ -126,7 +161,9 @@
             </form>
         </section>
     </div>
-    </script>
+
+    <!-- Floating Book Now Button -->
+    <a href="book.html" class="floating-book">BOOK NOW</a>
 
     <!-- Scripts -->
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.48/build/spline-viewer.js"></script>
@@ -134,6 +171,22 @@
     <script src="app.js"></script>
     <script src="season-icon.js"></script>
     <script src="falling-elements.js"></script>
-</body>
 
+    <script>
+        const headerBookBtn = document.querySelector(".btn-book");
+        const floatingBookBtn = document.querySelector(".floating-book");
+
+        window.addEventListener("scroll", () => {
+            if (window.scrollY > 150) {
+                headerBookBtn.style.opacity = "0";
+                headerBookBtn.style.pointerEvents = "none";
+                floatingBookBtn.classList.add("show");
+            } else {
+                headerBookBtn.style.opacity = "1";
+                headerBookBtn.style.pointerEvents = "auto";
+                floatingBookBtn.classList.remove("show");
+            }
+        });
+    </script>
+</body>
 </html>
