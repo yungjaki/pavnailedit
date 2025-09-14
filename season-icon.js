@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 function addSeasonIcon() {
     const now = new Date();
     const month = now.getMonth() + 1; // 1-12
@@ -27,7 +26,7 @@ function addSeasonIcon() {
 
 // Извикваме при зареждане на страницата
 window.addEventListener("DOMContentLoaded", addSeasonIcon);
-=======
+
 function addSeasonIcon() {
     const now = new Date();
     const month = now.getMonth() + 1; // 1-12
@@ -56,4 +55,3 @@ function addSeasonIcon() {
 
 // Извикваме при зареждане на страницата
 window.addEventListener("DOMContentLoaded", addSeasonIcon);
->>>>>>> ab64c21 ( Please enter the commit message for your changes. Lines starting)
