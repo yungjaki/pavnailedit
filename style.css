@@ -683,7 +683,77 @@ about .redi {
     color: #c94f7c;
 }
 
+/* Self-Care Tips */
+.tips-section {
+  text-align: center;
+  padding: 40px 20px;
+}
+.tips-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px auto;
+  max-width: 600px;
+  text-align: left;
+}
+.tips-list li {
+  background: #fff0f4;
+  margin: 8px 0;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(249,161,194,0.2);
+}
 
+/* Wall of Love */
+.wall-section {
+  padding: 40px 20px;
+  background: #fffafc;
+  border-radius: 20px;
+  margin: 40px auto;
+  max-width: 700px;
+}
+.wall-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+.wall-form input,
+.wall-form textarea {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #f9a1c2;
+  font-size: 1rem;
+}
+.wall-form button {
+  background: linear-gradient(90deg,#f8b7d1,#f9a1c2);
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.wall-form button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(249,161,194,0.5);
+}
+.wall-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.wall-message {
+  background: #fff0f4;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(249,161,194,0.2);
+}
+.wall-message strong {
+  color: #ff6ec4;
+}
 
 @keyframes fall {
     0% {
@@ -903,3 +973,4 @@ about .redi {
     
 
 }
+
