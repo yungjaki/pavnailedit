@@ -30,6 +30,3 @@ function scrollAnimate() {
 // Стартираме при скрол и при зареждане
 window.addEventListener('scroll', scrollAnimate);
 window.addEventListener('load', scrollAnimate);
-
-// Зареждане на съобщенията при стартиране
-loadWallMessages();
