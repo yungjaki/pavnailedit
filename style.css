@@ -667,6 +667,23 @@ about .redi {
     transform: translateY(0);
 }
 
+.surprise-box {
+    margin-top: 25px;
+    padding: 20px;
+    background: rgba(249, 161, 194, 0.1);
+    border-left: 5px solid #f9a1c2;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.surprise-box h2 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    color: #c94f7c;
+}
+
+
 
 @keyframes fall {
     0% {
@@ -884,4 +901,5 @@ about .redi {
         padding: 2rem;
     }
     
+
 }
