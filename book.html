@@ -32,23 +32,6 @@ input#date {padding:0.7rem;border-radius:15px;border:1px solid #f9d0d8;backgroun
 button {display:block;width:100%;margin-top:1.5rem;padding:0.8rem;border:none;border-radius:50px;background:linear-gradient(90deg,#f8b7d1,#f9a1c2);color:#fff;font-size:1.2rem;font-weight:600;cursor:pointer;transition:transform 0.2s, box-shadow 0.2s;}
 button:hover {transform:scale(1.05);box-shadow:0 8px 20px rgba(255,110,196,0.4);}
 @media (max-width:768px) {form{padding:1.5rem;} h1{font-size:2rem;} .time-buttons{flex-direction:column;}}
-
-/* Конфети */
-.confetti {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background-color: #ff6ec4;
-  opacity: 0.9;
-  pointer-events: none;
-  border-radius: 50%;
-  animation: confetti-fall 1.5s forwards;
-}
-
-@keyframes confetti-fall {
-  0% { transform: translate(0,0) rotate(0deg); opacity: 1; }
-  100% { transform: translate(var(--x), var(--y)) rotate(360deg); opacity: 0; }
-}
 </style>
 </head>
 <body>
@@ -234,26 +217,7 @@ async function loadBookings() {
         console.error(err);
     }
 }
-
-// --- Конфети ---
-function launchConfetti(btn){
-    const confettiCount = 30;
-    for(let i=0;i<confettiCount;i++){
-        const confetti = document.createElement('div');
-        confetti.classList.add('confetti');
-        const x = (Math.random()-0.5)*200+"px";
-        const y = -(Math.random()*300+50)+"px";
-        confetti.style.setProperty('--x',x);
-        confetti.style.setProperty('--y',y);
-        const colors = ["#f8b7d1","#f9a1c2","#ff6ec4","#fff0f4","#f9d0d8"];
-        confetti.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
-        const rect = btn.getBoundingClientRect();
-        confetti.style.left = rect.left + rect.width/2 + "px";
-        confetti.style.top = rect.top + "px";
-        document.body.appendChild(confetti);
-        setTimeout(()=>confetti.remove(),1500);
-    }
-}
+loadBookings();
 
 // --- Записване на час ---
 bookBtn.addEventListener("click", async () => {
@@ -284,14 +248,9 @@ bookBtn.addEventListener("click", async () => {
         });
         const data = await res.json();
         if(res.ok){
-            launchConfetti(bookBtn); // Показване на конфети
             alert(`✅ ${data.message}`);
             document.getElementById("bookingForm").reset();
-            serviceOptions.forEach(opt => { 
-                opt.classList.remove("active"); 
-                const counter = opt.querySelector('.counter'); 
-                if(counter) counter.style.display = 'none'; 
-            });
+            serviceOptions.forEach(opt => { opt.classList.remove("active"); const counter = opt.querySelector('.counter'); if(counter) counter.style.display = 'none'; });
             updatePrice();
             await loadBookings();
         } else {
