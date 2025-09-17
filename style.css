@@ -158,6 +158,7 @@ main {
 
 about {
     min-height: 50vh;
+    margin-top: -10rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -973,5 +974,6 @@ about .redi {
     
 
 }
+
 
 
