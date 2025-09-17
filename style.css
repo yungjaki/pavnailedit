@@ -169,6 +169,10 @@ about .content {
     margin-top: -55rem;
 }
 
+about .content .h1 {
+margin-top: -30rem;
+}
+
 about .redi {
     margin-top: 20rem;
 }
@@ -973,6 +977,7 @@ about .redi {
     
 
 }
+
 
 
 
