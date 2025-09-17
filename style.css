@@ -157,7 +157,7 @@ main {
 }
 
 about {
-    min-height: 60vh;
+    min-height: 50vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -166,7 +166,7 @@ about {
 
 about .content {
     padding-left: 70rem;
-    margin-top: -65rem;
+    margin-top: -55rem;
 }
 
 about .redi {
@@ -973,4 +973,5 @@ about .redi {
     
 
 }
+
 
