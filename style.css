@@ -170,7 +170,7 @@ about .content {
 }
 
 about .content .h1 {
-margin-top: -30rem;
+margin-top: 30rem;
 }
 
 about .redi {
@@ -227,7 +227,6 @@ about .redi {
     line-height: 1.2;
     text-shadow: 0 0 10px rgba(128, 128, 128, 0.418);
     color: #2c2c2c;  /* Darker text for contrast */
-    margin-top: 30rem;
 }
 
 .description {
@@ -978,6 +977,7 @@ about .redi {
     
 
 }
+
 
 
 
