@@ -3,6 +3,14 @@ const { getFirestore } = require("firebase-admin/firestore");
 const serviceAccount = require("../bookingthing.json");
 const sgMail = require("@sendgrid/mail");
 const { google } = require("googleapis");
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
