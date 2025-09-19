@@ -73,7 +73,7 @@ VERSION:2.0
 PRODID:-//PavNailedIt//Booking//BG
 BEGIN:VEVENT
 UID:${Date.now()}@pavnailedit.com
-SUMMARY:Маникюр: ${name}
+SUMMARY:Нов час: ${name}
 DESCRIPTION:Услуги: ${services.join(", ")}\\nТелефон: ${phone}\\nОбщо: ${totalPrice} лв
 DTSTART:${formatICSDate(startDateTime)}
 DTEND:${formatICSDate(endDateTime)}
@@ -84,8 +84,8 @@ END:VCALENDAR
 
 module.exports = async function handler(req, res) {
   if (req.method === "POST") {
-    const form = formidable({ multiples: false });
-    form.parse(req, async (err, fields, files) => {
+      const form = new formidable.IncomingForm({ multiples: false });
+      form.parse(req, async (err, fields, files) => {
       if (err) {
         console.error("Form parse error:", err);
         return res.status(400).json({ error: "Invalid form data" });
