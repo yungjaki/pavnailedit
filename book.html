@@ -191,6 +191,7 @@ function isWeekendOrHoliday(dateStr) {
 }
 
 // --- Проверка на заетите часове и блокиране на дати ---
+// --- Проверка на заетите часове и блокиране на дати ---
 function checkAvailability() {
     const date = dateInput.value;
     if(!date) return;
@@ -222,13 +223,22 @@ function checkAvailability() {
         }
     });
 
+    // --- Проверка за напълно заети дати ---
     const fullyBookedDates = [];
     const dates = [...new Set(bookings.map(b => b.date))];
     dates.forEach(d => {
         const timesOnDate = bookings.filter(b => b.date === d).map(b => b.time);
-        const allTimes = Array.from(timeButtons).map(b => b.dataset.time);
-        if(allTimes.every(t => timesOnDate.includes(t))){
-            fullyBookedDates.push(d);
+
+        if (isWeekendOrHoliday(d)) {
+            // Уикенд/празник → трябва и двата да са заети
+            if (["10:00","14:00"].every(t => timesOnDate.includes(t))) {
+                fullyBookedDates.push(d);
+            }
+        } else {
+            // Делничен ден → достатъчно е 10:00 да е зает
+            if (timesOnDate.includes("10:00")) {
+                fullyBookedDates.push(d);
+            }
         }
     });
 
