@@ -103,10 +103,25 @@ const fp = flatpickr("#date", {
     locale: "bg", 
     minDate: "today", 
     dateFormat: "d.m.Y",
-    disable: [],
+    disable: [], // остава празен, защото блокираме динамично
     disableMobile: true,
-    onChange: checkAvailability
+    onChange: checkAvailability,
+    onDayCreate: function(dObj, dStr, fpDayElem){
+        const day = fpDayElem.dateObj.getDate().toString().padStart(2,'0');
+        const month = (fpDayElem.dateObj.getMonth() + 1).toString().padStart(2,'0');
+        const year = fpDayElem.dateObj.getFullYear();
+        const dateStr = `${day}.${month}.${year}`;
+
+        // Ако е почивен ден
+        if(isBreak(dateStr)){
+            fpDayElem.classList.add('flatpickr-disabled'); // прави датата неактивна
+            fpDayElem.innerHTML = '🌴';                   // показва палмичка
+            fpDayElem.style.color = "#ff6ec4";
+            fpDayElem.style.fontSize = "1.2rem";
+        }
+    }
 });
+
 
 // Time button selection
 timeButtons.forEach(btn => {
@@ -177,6 +192,25 @@ const holidays = [
     "06.09.2025", "22.09.2025", "24.12.2025", "25.12.2025", "26.12.2025"
     // добавяш още ако искаш
 ];
+
+// Периоди, в които маникюристката не работи
+const breaks = [
+    { start: "20.12.2025", end: "25.12.2025" }  // друг период
+];
+
+function isBreak(dateStr) {
+    const [day, month, year] = dateStr.split(".").map(Number);
+    const date = new Date(year, month - 1, day);
+
+    return breaks.some(b => {
+        const [startDay, startMonth, startYear] = b.start.split(".").map(Number);
+        const [endDay, endMonth, endYear] = b.end.split(".").map(Number);
+        const startDate = new Date(startYear, startMonth - 1, startDay);
+        const endDate = new Date(endYear, endMonth - 1, endDay);
+        return date >= startDate && date <= endDate;
+    });
+}
+
 
 function isWeekendOrHoliday(dateStr) {
     const [day, month, year] = dateStr.split(".").map(Number);
