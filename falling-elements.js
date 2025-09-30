@@ -17,7 +17,7 @@ const THEMES = {
 
 // 📅 Определяне на текущия празник/сезон
 function getTheme() {
-    const now = new Date("2025-10-28");
+    const now = new Date("2026-04-10");
     const month = now.getMonth() + 1;
     const day = now.getDate();
 
@@ -73,3 +73,4 @@ function createFallingElement() {
 
 
 setInterval(createFallingElement, INTERVAL);
+
