@@ -107,19 +107,22 @@ const fp = flatpickr("#date", {
     disableMobile: true,
     onChange: checkAvailability,
     onDayCreate: function(dObj, dStr, fpDayElem){
-        const day = fpDayElem.dateObj.getDate().toString().padStart(2,'0');
-        const month = (fpDayElem.dateObj.getMonth() + 1).toString().padStart(2,'0');
-        const year = fpDayElem.dateObj.getFullYear();
-        const dateStr = `${day}.${month}.${year}`;
+    if(!fpDayElem.dateObj) return; // <- добави тази проверка
 
-        // Ако е почивен ден
-        if(isBreak(dateStr)){
-            fpDayElem.classList.add('flatpickr-disabled'); // прави датата неактивна
-            fpDayElem.innerHTML = '🌴';                   // показва палмичка
-            fpDayElem.style.color = "#ff6ec4";
-            fpDayElem.style.fontSize = "1.2rem";
-        }
+    const day = fpDayElem.dateObj.getDate().toString().padStart(2,'0');
+    const month = (fpDayElem.dateObj.getMonth() + 1).toString().padStart(2,'0');
+    const year = fpDayElem.dateObj.getFullYear();
+    const dateStr = `${day}.${month}.${year}`;
+
+    // Ако е почивен ден
+    if(isBreak(dateStr)){
+        fpDayElem.classList.add('flatpickr-disabled'); // прави датата неактивна
+        fpDayElem.innerHTML = '🌴';                   // показва палмичка
+        fpDayElem.style.color = "#ff6ec4";
+        fpDayElem.style.fontSize = "1.2rem";
     }
+}
+
 });
 
 
