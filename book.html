@@ -171,6 +171,25 @@ function animatePrice(start, end, duration){
     requestAnimationFrame(animate);
 }
 
+// --- Проверка дали датата е празник или почивен ден ---
+const holidays = [
+    "01.01.2025", "03.03.2025", "01.05.2025", "06.05.2025", "24.05.2025",
+    "06.09.2025", "22.09.2025", "24.12.2025", "25.12.2025", "26.12.2025"
+    // добавяш още ако искаш
+];
+
+function isWeekendOrHoliday(dateStr) {
+    const [day, month, year] = dateStr.split(".").map(Number);
+    const date = new Date(year, month - 1, day);
+
+    const dayOfWeek = date.getDay(); 
+    // 0 = неделя, 6 = събота
+    if (dayOfWeek === 0 || dayOfWeek === 6) return true;
+
+    // Проверка дали е празник
+    return holidays.includes(dateStr);
+}
+
 // --- Проверка на заетите часове и блокиране на дати ---
 function checkAvailability() {
     const date = dateInput.value;
@@ -181,6 +200,16 @@ function checkAvailability() {
         .map(b => b.time);
 
     timeButtons.forEach(btn => {
+        // Логика за 14:00 (блокиране в делнични дни)
+        if (btn.dataset.time === "14:00" && !isWeekendOrHoliday(date)) {
+            btn.disabled = true;
+            btn.textContent = "Недостъпен";
+            btn.classList.remove("active");
+            btn.classList.add("disabled-btn");
+            return;
+        }
+
+        // Проверка дали вече е зает
         if(bookedTimes.includes(btn.dataset.time)){
             btn.disabled = true;
             btn.textContent = "Зает";
