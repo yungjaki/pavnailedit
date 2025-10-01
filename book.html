@@ -239,7 +239,7 @@ function checkAvailability() {
 
     timeButtons.forEach(btn => {
         // Логика за 14:00 (блокиране в делнични дни)
-        if (btn.dataset.time === "16:30" && !isWeekendOrHoliday(date)) {
+        if (btn.dataset.time === "14:00" && !isWeekendOrHoliday(date)) {
             btn.disabled = true;
             btn.textContent = "Недостъпен";
             btn.classList.remove("active");
