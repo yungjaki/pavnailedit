@@ -268,7 +268,7 @@ function checkAvailability() {
 
         if (isWeekendOrHoliday(d)) {
             // Уикенд/празник → трябва и двата да са заети
-            if (["10:00","16:30"].every(t => timesOnDate.includes(t))) {
+            if (["10:00","14:00"].every(t => timesOnDate.includes(t))) {
                 fullyBookedDates.push(d);
             }
         } else {
