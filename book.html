@@ -31,6 +31,8 @@ input#date {padding:0.7rem;border-radius:15px;border:1px solid #f9d0d8;backgroun
 #totalPrice.animate {transform:translateY(-5px);opacity:0.7;}
 button {display:block;width:100%;margin-top:1.5rem;padding:0.8rem;border:none;border-radius:50px;background:linear-gradient(90deg,#f8b7d1,#f9a1c2);color:#fff;font-size:1.2rem;font-weight:600;cursor:pointer;transition:transform 0.2s, box-shadow 0.2s;}
 button:hover {transform:scale(1.05);box-shadow:0 8px 20px rgba(255,110,196,0.4);}
+.flatpickr-day.almost-full {background-color:#ffe0e8;color:#ff6ec4;font-weight:600;}
+.flatpickr-day.full {background-color:#ff6ec4;color:#fff;}
 @media (max-width:768px) {form{padding:1.5rem;} h1{font-size:2rem;} .time-buttons{flex-direction:column;}}
 </style>
 </head>
@@ -99,33 +101,64 @@ const serviceOptions = document.querySelectorAll(".service-option");
 const totalPriceEl = document.getElementById("totalPrice");
 let currentTotal = 0;
 
-// Initialize Flatpickr
-const fp = flatpickr("#date", { 
-    locale: "bg", 
-    minDate: "today", 
-    dateFormat: "d.m.Y",
-    disable: [], // остава празен, защото блокираме динамично
-    disableMobile: true,
-    onChange: checkAvailability,
-    onDayCreate: function(dObj, dStr, fpDayElem){
-    if(!fpDayElem.dateObj) return; // <- добави тази проверка
+// Holidays & Breaks
+const holidays = ["01.01.2025","03.03.2025","01.05.2025","06.05.2025","24.05.2025","06.09.2025","22.09.2025","24.12.2025","25.12.2025","26.12.2025"];
+const breaks = [{ start: "20.12.2025", end: "25.12.2025" }];
 
-    const day = fpDayElem.dateObj.getDate().toString().padStart(2,'0');
-    const month = (fpDayElem.dateObj.getMonth() + 1).toString().padStart(2,'0');
-    const year = fpDayElem.dateObj.getFullYear();
-    const dateStr = `${day}.${month}.${year}`;
-
-    // Ако е почивен ден
-    if(isBreak(dateStr)){
-        fpDayElem.classList.add('flatpickr-disabled'); // прави датата неактивна
-        fpDayElem.innerHTML = '🌴';                   // показва палмичка
-        fpDayElem.style.color = "#ff6ec4";
-        fpDayElem.style.fontSize = "1.2rem";
-    }
+function isBreak(dateStr) {
+    const [d,m,y] = dateStr.split(".").map(Number);
+    const date = new Date(y,m-1,d);
+    return breaks.some(b=>{
+        const [sd,sm,sy] = b.start.split(".").map(Number);
+        const [ed,em,ey] = b.end.split(".").map(Number);
+        const start = new Date(sy,sm-1,sd), end=new Date(ey,em-1,ed);
+        return date>=start && date<=end;
+    });
 }
 
-});
+function isWeekendOrHoliday(dateStr){
+    const [d,m,y] = dateStr.split(".").map(Number);
+    const date = new Date(y,m-1,d);
+    return date.getDay()===0 || date.getDay()===6 || holidays.includes(dateStr);
+}
 
+// Count available times
+function getAvailableTimesCount(dateStr){
+    const bookedTimes = bookings.filter(b=>b.date===dateStr).map(b=>b.time);
+    let allTimes = ["10:00"];
+    if(isWeekendOrHoliday(dateStr)) allTimes.push("14:00","16:30");
+    return allTimes.filter(t=>!bookedTimes.includes(t)).length;
+}
+
+// Initialize Flatpickr
+const fp = flatpickr("#date",{
+    locale:"bg",
+    minDate:"today",
+    dateFormat:"d.m.Y",
+    disable:[],
+    disableMobile:true,
+    onChange: checkAvailability,
+    onDayCreate:function(dObj,dStr,fpDayElem){
+        if(!fpDayElem.dateObj) return;
+
+        const day = fpDayElem.dateObj.getDate().toString().padStart(2,'0');
+        const month = (fpDayElem.dateObj.getMonth()+1).toString().padStart(2,'0');
+        const year = fpDayElem.dateObj.getFullYear();
+        const dateStr = `${day}.${month}.${year}`;
+
+        // Почивен ден
+        if(isBreak(dateStr)){
+            fpDayElem.classList.add('flatpickr-disabled');
+            fpDayElem.innerHTML='🌴';
+            fpDayElem.style.color="#ff6ec4";
+            fpDayElem.style.fontSize="1.2rem";
+        }
+
+        const availableCount = getAvailableTimesCount(dateStr);
+        if(availableCount===0) fpDayElem.classList.add('full');
+        else if(availableCount<=2) fpDayElem.classList.add('almost-full');
+    }
+});
 
 // Time button selection
 timeButtons.forEach(btn => {
