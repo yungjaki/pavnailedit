@@ -78,6 +78,7 @@ button:hover {transform:scale(1.05);box-shadow:0 8px 20px rgba(255,110,196,0.4);
 <div class="time-buttons">
     <button type="button" class="time-btn" data-time="10:00">10:00</button>
     <button type="button" class="time-btn" data-time="14:00">14:00</button>
+    <button type="button" class="time-btn" data-time="16:30">16:30</button>
 </div>
 
 <label for="design">Прикачи дизайн (по желание):</label>
@@ -237,28 +238,32 @@ function checkAvailability() {
         .filter(b => b.date === date)
         .map(b => b.time);
 
-    timeButtons.forEach(btn => {
-        // Логика за 14:00 (блокиране в делнични дни)
-        if (btn.dataset.time === "14:00" && !isWeekendOrHoliday(date)) {
+timeButtons.forEach(btn => {
+    const time = btn.dataset.time;
+
+    // Делнични дни → само 10:00 активен
+    if (!isWeekendOrHoliday(date)) {
+        if (time !== "10:00") {
             btn.disabled = true;
             btn.textContent = "Недостъпен";
             btn.classList.remove("active");
             btn.classList.add("disabled-btn");
             return;
         }
-
-        // Проверка дали вече е зает
-        if(bookedTimes.includes(btn.dataset.time)){
+    } else {
+        // Уикенд → всички 3 часа активни (10,14,16:30), но блокираме ако вече са заети
+        if (bookedTimes.includes(time)) {
             btn.disabled = true;
             btn.textContent = "Зает";
             btn.classList.remove("active");
             btn.classList.add("disabled-btn");
         } else {
             btn.disabled = false;
-            btn.textContent = btn.dataset.time;
+            btn.textContent = time;
             btn.classList.remove("disabled-btn");
         }
-    });
+    }
+});
 
     // --- Проверка за напълно заети дати ---
     const fullyBookedDates = [];
@@ -266,17 +271,16 @@ function checkAvailability() {
     dates.forEach(d => {
         const timesOnDate = bookings.filter(b => b.date === d).map(b => b.time);
 
-        if (isWeekendOrHoliday(d)) {
-            // Уикенд/празник → трябва и двата да са заети
-            if (["10:00","14:00"].every(t => timesOnDate.includes(t))) {
-                fullyBookedDates.push(d);
-            }
-        } else {
-            // Делничен ден → достатъчно е 10:00 да е зает
-            if (timesOnDate.includes("10:00")) {
-                fullyBookedDates.push(d);
-            }
-        }
+if (isWeekendOrHoliday(d)) {
+    // Уикенд → всички часове трябва да са заети
+    if (["10:00","14:00","16:30"].every(t => timesOnDate.includes(t))) {
+        fullyBookedDates.push(d);
+    }
+} else {
+    if (timesOnDate.includes("10:00")) {
+        fullyBookedDates.push(d);
+    }
+}
     });
 
     fp.set('disable', fullyBookedDates);
