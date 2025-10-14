@@ -105,22 +105,6 @@ let currentTotal = 0;
 const holidays = ["01.01.2025","03.03.2025","01.05.2025","06.05.2025","24.05.2025","06.09.2025","22.09.2025","24.12.2025","25.12.2025","26.12.2025"];
 const breaks = [{ start: "20.12.2025", end: "25.12.2025" }];
 
-function isBreak(dateStr) {
-    const [d,m,y] = dateStr.split(".").map(Number);
-    const date = new Date(y,m-1,d);
-    return breaks.some(b=>{
-        const [sd,sm,sy] = b.start.split(".").map(Number);
-        const [ed,em,ey] = b.end.split(".").map(Number);
-        const start = new Date(sy,sm-1,sd), end=new Date(ey,em-1,ed);
-        return date>=start && date<=end;
-    });
-}
-
-function isWeekendOrHoliday(dateStr){
-    const [d,m,y] = dateStr.split(".").map(Number);
-    const date = new Date(y,m-1,d);
-    return date.getDay()===0 || date.getDay()===6 || holidays.includes(dateStr);
-}
 
 // Count available times
 function getAvailableTimesCount(dateStr){
@@ -223,17 +207,6 @@ function animatePrice(start, end, duration){
     requestAnimationFrame(animate);
 }
 
-// --- Проверка дали датата е празник или почивен ден ---
-const holidays = [
-    "01.01.2025", "03.03.2025", "01.05.2025", "06.05.2025", "24.05.2025",
-    "06.09.2025", "22.09.2025", "24.12.2025", "25.12.2025", "26.12.2025"
-    // добавяш още ако искаш
-];
-
-// Периоди, в които маникюристката не работи
-const breaks = [
-    { start: "20.12.2025", end: "25.12.2025" }  // друг период
-];
 
 function isBreak(dateStr) {
     const [day, month, year] = dateStr.split(".").map(Number);
