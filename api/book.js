@@ -187,7 +187,7 @@ module.exports = async function handler(req, res) {
               📅 Добави в календара
             </a>
           </div>
-          <p style="margin-top:25px; text-align:center; font-weight:600; color:#ff6ec4;">Очаквам те! 💞🥰</p>
+          <p style="margin-top:25px; text-align:center; font-weight:600; color:#ff6ec4;">"ул.Благовест 1" Очаквам те! 💞🥰</p>
         </div>
         `,
       });
