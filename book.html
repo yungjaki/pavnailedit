@@ -238,63 +238,67 @@ function isWeekendOrHoliday(dateStr) {
 // --- Проверка на заетите часове и блокиране на дати ---
 function checkAvailability() {
     const date = dateInput.value;
-    if(!date) return;
+    if (!date) return;
 
     const bookedTimes = bookings
         .filter(b => b.date === date)
         .map(b => b.time);
 
-timeButtons.forEach(btn => {
-    const time = btn.dataset.time;
+    timeButtons.forEach(btn => {
+        const time = btn.dataset.time;
 
-if (!isWeekendOrHoliday(date)) {
-    if (time !== "10:00") {
-        btn.disabled = true;
-        btn.textContent = "Недостъпен";
-        btn.classList.remove("active");
-        btn.classList.add("disabled-btn");
-    } else {
-        if (bookedTimes.includes(time)) {
-            btn.disabled = true;
-            btn.textContent = "Зает";
-            btn.classList.remove("active");
-            btn.classList.add("disabled-btn");
+        if (!isWeekendOrHoliday(date)) {
+            // Делничен ден
+            if (time !== "10:00") {
+                btn.disabled = true;
+                btn.textContent = "Недостъпен";
+                btn.classList.remove("active");
+                btn.classList.add("disabled-btn");
+            } else {
+                // Проверка дали 10:00 е зает
+                if (bookedTimes.includes(time)) {
+                    btn.disabled = true;
+                    btn.textContent = "Зает";
+                    btn.classList.remove("active");
+                    btn.classList.add("disabled-btn");
+                } else {
+                    btn.disabled = false;
+                    btn.textContent = time;
+                    btn.classList.remove("disabled-btn");
+                }
+            }
         } else {
-            btn.disabled = false;
-            btn.textContent = time;
-            btn.classList.remove("disabled-btn");
+            // Уикенд или празник
+            if (bookedTimes.includes(time)) {
+                btn.disabled = true;
+                btn.textContent = "Зает";
+                btn.classList.remove("active");
+                btn.classList.add("disabled-btn");
+            } else {
+                btn.disabled = false;
+                btn.textContent = time;
+                btn.classList.remove("disabled-btn");
+            }
         }
-    }
-} else {
-    if (bookedTimes.includes(time)) {
-        btn.disabled = true;
-        btn.textContent = "Зает";
-        btn.classList.remove("active");
-        btn.classList.add("disabled-btn");
-    } else {
-        btn.disabled = false;
-        btn.textContent = time;
-        btn.classList.remove("disabled-btn");
-    }
-}
-
+    });
 
     // --- Проверка за напълно заети дати ---
     const fullyBookedDates = [];
     const dates = [...new Set(bookings.map(b => b.date))];
     dates.forEach(d => {
-        const timesOnDate = bookings.filter(b => b.date === d).map(b => b.time);
+        const timesOnDate = bookings
+            .filter(b => b.date === d)
+            .map(b => b.time);
 
-if (isWeekendOrHoliday(d)) {
-    // Уикенд → всички часове трябва да са заети
-    if (["10:00","14:00","16:30"].every(t => timesOnDate.includes(t))) {
-        fullyBookedDates.push(d);
-    }
-} else {
-    if (timesOnDate.includes("10:00")) {
-        fullyBookedDates.push(d);
-    }
-}
+        if (isWeekendOrHoliday(d)) {
+            if (["10:00", "14:00", "16:30"].every(t => timesOnDate.includes(t))) {
+                fullyBookedDates.push(d);
+            }
+        } else {
+            if (timesOnDate.includes("10:00")) {
+                fullyBookedDates.push(d);
+            }
+        }
     });
 
     fp.set('disable', fullyBookedDates);
