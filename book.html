@@ -247,17 +247,13 @@ function checkAvailability() {
 timeButtons.forEach(btn => {
     const time = btn.dataset.time;
 
-    // Делнични дни → само 10:00 активен
-    if (!isWeekendOrHoliday(date)) {
-        if (time !== "10:00") {
-            btn.disabled = true;
-            btn.textContent = "Недостъпен";
-            btn.classList.remove("active");
-            btn.classList.add("disabled-btn");
-            return;
-        }
+if (!isWeekendOrHoliday(date)) {
+    if (time !== "10:00") {
+        btn.disabled = true;
+        btn.textContent = "Недостъпен";
+        btn.classList.remove("active");
+        btn.classList.add("disabled-btn");
     } else {
-        // Уикенд → всички 3 часа активни (10,14,16:30), но блокираме ако вече са заети
         if (bookedTimes.includes(time)) {
             btn.disabled = true;
             btn.textContent = "Зает";
@@ -269,7 +265,19 @@ timeButtons.forEach(btn => {
             btn.classList.remove("disabled-btn");
         }
     }
-});
+} else {
+    if (bookedTimes.includes(time)) {
+        btn.disabled = true;
+        btn.textContent = "Зает";
+        btn.classList.remove("active");
+        btn.classList.add("disabled-btn");
+    } else {
+        btn.disabled = false;
+        btn.textContent = time;
+        btn.classList.remove("disabled-btn");
+    }
+}
+
 
     // --- Проверка за напълно заети дати ---
     const fullyBookedDates = [];
