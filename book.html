@@ -115,42 +115,40 @@ function getAvailableTimesCount(dateStr){
 }
 
 // Initialize Flatpickr
-const fp = flatpickr("#date",{
-    locale:"bg",
-    minDate:"today",
-    dateFormat:"d.m.Y",
+const fp = flatpickr("#date", {
+    locale: "bg",
+    minDate: "today",
+    dateFormat: "d.m.Y",
     disable: [
-    function(date) {
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        const dateStr = `${day}.${month}.${year}`;
-
-        // Понеделник или празник или почивка
-        return date.getDay() === 1 || holidays.includes(dateStr) || isBreak(dateStr);
-    }
-],
-    disableMobile:true,
+        function(date) {
+            return date.getDay() === 1; // ❌ Забрани понеделници по подразбиране
+        }
+    ],
+    disableMobile: true,
     onChange: checkAvailability,
-    onDayCreate:function(dObj,dStr,fpDayElem){
-        if(!fpDayElem.dateObj) return;
+    onDayCreate: function(dObj, dStr, fpDayElem) {
+        if (!fpDayElem.dateObj) return;
 
-        const day = fpDayElem.dateObj.getDate().toString().padStart(2,'0');
-        const month = (fpDayElem.dateObj.getMonth()+1).toString().padStart(2,'0');
+        const day = fpDayElem.dateObj.getDate().toString().padStart(2, '0');
+        const month = (fpDayElem.dateObj.getMonth() + 1).toString().padStart(2, '0');
         const year = fpDayElem.dateObj.getFullYear();
         const dateStr = `${day}.${month}.${year}`;
 
-        // Почивен ден
-        if(isBreak(dateStr)){
+        // 🌴 Почивни периоди
+        if (isBreak(dateStr)) {
             fpDayElem.classList.add('flatpickr-disabled');
-            fpDayElem.innerHTML='🌴';
-            fpDayElem.style.color="#ff6ec4";
-            fpDayElem.style.fontSize="1.2rem";
+            fpDayElem.innerHTML = '🌴';
+            fpDayElem.style.color = "#ff6ec4";
+            fpDayElem.style.fontSize = "1.2rem";
         }
 
+        // 🔄 Оцветяване по заетост
         const availableCount = getAvailableTimesCount(dateStr);
-        if(availableCount===0) fpDayElem.classList.add('full');
-        else if(availableCount<=2) fpDayElem.classList.add('almost-full');
+        if (availableCount === 0) {
+            fpDayElem.classList.add('full');
+        } else if (availableCount <= 2) {
+            fpDayElem.classList.add('almost-full');
+        }
     }
 });
 
@@ -258,14 +256,13 @@ function checkAvailability() {
         const time = btn.dataset.time;
 
         if (!isWeekendOrHoliday(date)) {
-            // Делничен ден
+            // Делничен ден (без уикенд и празник)
             if (time !== "10:00") {
                 btn.disabled = true;
                 btn.textContent = "Недостъпен";
                 btn.classList.remove("active");
                 btn.classList.add("disabled-btn");
             } else {
-                // Проверка дали 10:00 е зает
                 if (bookedTimes.includes(time)) {
                     btn.disabled = true;
                     btn.textContent = "Зает";
@@ -301,18 +298,27 @@ function checkAvailability() {
             .map(b => b.time);
 
         if (isWeekendOrHoliday(d)) {
+            // Уикенд → и трите часа трябва да са заети
             if (["10:00", "14:00", "16:30"].every(t => timesOnDate.includes(t))) {
                 fullyBookedDates.push(d);
             }
         } else {
+            // Делничен ден → само 10:00 е валиден, ако е зает → датата е заета
             if (timesOnDate.includes("10:00")) {
                 fullyBookedDates.push(d);
             }
         }
     });
 
-    fp.set('disable', fullyBookedDates);
+    // 🔁 Обединена проверка: понеделници + заети дати
+    fp.set('disable', [
+        function(date) {
+            return date.getDay() === 1; // ❌ Понеделник
+        },
+        ...fullyBookedDates // ❌ Заети дати
+    ]);
 }
+
 
 // Зареждане на вече записаните часове от Firestore
 async function loadBookings() {
