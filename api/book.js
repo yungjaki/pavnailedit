@@ -42,6 +42,7 @@ function parseDateTime(date, time) {
   const [hours, minutes] = time.split(":").map(Number);
   return new Date(year, month - 1, day, hours, minutes, 0);
 }
+
 function formatDateForGoogleCalendar(date) {
   const pad = (n) => n.toString().padStart(2, "0");
   const year = date.getFullYear();
@@ -52,6 +53,7 @@ function formatDateForGoogleCalendar(date) {
   const seconds = pad(date.getSeconds());
   return { dateTime: `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`, timeZone: "Europe/Sofia" };
 }
+
 function generateICS(name, services, phone, date, time, totalPrice) {
   const startDateTime = parseDateTime(date, time);
   const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);
@@ -76,102 +78,119 @@ END:VCALENDAR`.trim();
 
 // ---- main handler ----
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
-
-  const form = new IncomingForm({ keepExtensions: true, maxFileSize: 5 * 1024 * 1024 });
-
-  form.parse(req, async (err, fields, files) => {
-    if (err) return res.status(500).json({ error: "Form parse error", details: err.message });
-
+  // --- GET: връща всички резервации за календара ---
+  if (req.method === "GET") {
     try {
-      const name = fields.name?.[0];
-      const phone = fields.phone?.[0];
-      const clientEmail = fields.email?.[0];
-      const date = fields.date?.[0];
-      const time = fields.time?.[0];
-      const totalPrice = fields.totalPrice?.[0];
-      const services = JSON.parse(fields.services?.[0] || "[]");
-
-      // качване в Cloudinary ако има файл
-      let designUrl = "";
-      if (files.design && files.design[0]) {
-        const filePath = files.design[0].filepath;
-        const upload = await cloudinary.uploader.upload(filePath, { folder: "pavnailedit_bookings" });
-        designUrl = upload.secure_url;
-        fs.unlinkSync(filePath);
-      }
-
-      // проверка за зает час
-      const snapshot = await bookingsCollection.where("date", "==", date).where("time", "==", time).get();
-      if (!snapshot.empty) return res.status(400).json({ error: "Този час вече е зает" });
-
-      // запис в Firestore
-      await bookingsCollection.add({ name, phone, clientEmail, services, date, time, designUrl, totalPrice });
-
-      // добавяне в Google Calendar
-      const startDateTime = parseDateTime(date, time);
-      const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);
-      await calendar.events.insert({
-        calendarId: process.env.TECH_CALENDAR_ID,
-        requestBody: {
-          summary: `Маникюр: ${name}`,
-          description: `Услуги: ${services.join(", ")}\nТелефон: ${phone}\nОбщо: ${totalPrice} лв`,
-          start: formatDateForGoogleCalendar(startDateTime),
-          end: formatDateForGoogleCalendar(endDateTime),
-          attendees: clientEmail ? [{ email: clientEmail }] : [],
-        },
-      });
-
-      const icsContent = generateICS(name, services, phone, date, time, totalPrice);
-
-      // имейл до техника
-      await sgMail.send({
-        to: process.env.TECH_EMAIL,
-        from: process.env.SENDGRID_FROM_EMAIL,
-        subject: `Нов запис: ${name} — ${date} ${time}`,
-        html: `
-        <div style="font-family:Roboto,sans-serif;background:#fff0f4;padding:25px;border-radius:20px;">
-          <h2 style="color:#ff6ec4;">💅🏻 Нов запис</h2>
-          <p><strong>Име:</strong> ${name}</p>
-          <p><strong>Телефон:</strong> ${phone}</p>
-          <p><strong>Дата:</strong> ${date}</p>
-          <p><strong>Час:</strong> ${time}</p>
-          <h3 style="color:#f9a1c2;">✨ Услуги:</h3>
-          <ul>${services.map((s) => `<li>💖 ${s}</li>`).join("")}</ul>
-          <p style="font-size:18px;font-weight:700;color:#ff6ec4;">💰 Общо: ${totalPrice} лв</p>
-          ${designUrl ? `<p><strong>📸 Прикачен дизайн:</strong></p><img src="${designUrl}" style="max-width:300px;border-radius:10px;">` : ""}
-        </div>`,
-        attachments: [
-          {
-            content: Buffer.from(icsContent).toString("base64"),
-            filename: "booking.ics",
-            type: "text/calendar",
-            disposition: "attachment",
-          },
-        ],
-      });
-
-      // имейл до клиента
-      await sgMail.send({
-        to: clientEmail,
-        from: process.env.SENDGRID_FROM_EMAIL,
-        subject: `Потвърждение на час: ${date} ${time}`,
-        html: `
-        <div style="font-family:Roboto,sans-serif;background:#fff0f4;padding:25px;border-radius:20px;">
-          <h2 style="color:#ff6ec4;text-align:center;">💅🏻 Здравей, ${name}!</h2>
-          <p>Вашият час е успешно запазен.</p>
-          <p><strong>Дата:</strong> ${date}</p>
-          <p><strong>Час:</strong> ${time}</p>
-          <ul>${services.map((s) => `<li>💖 ${s}</li>`).join("")}</ul>
-          <p style="font-weight:700;color:#ff6ec4;">💰 Общо: ${totalPrice} лв</p>
-          <p style="margin-top:15px;">Очакваме те 💞 ул. Благовест 1</p>
-        </div>`,
-      });
-
-      return res.status(200).json({ message: "Часът е запазен и снимката е изпратена!" });
+      const snapshot = await bookingsCollection.get();
+      const bookings = snapshot.docs.map(doc => doc.data());
+      return res.status(200).json({ bookings });
     } catch (err) {
-      console.error("❌ Error:", err);
-      res.status(500).json({ error: "Server error", details: err.message });
+      console.error("Error fetching bookings:", err);
+      return res.status(500).json({ error: "Failed to fetch bookings" });
     }
-  });
+  }
+
+  // --- POST: нова резервация ---
+  if (req.method === "POST") {
+    const form = new IncomingForm({ keepExtensions: true, maxFileSize: 5 * 1024 * 1024 });
+
+    form.parse(req, async (err, fields, files) => {
+      if (err) return res.status(500).json({ error: "Form parse error", details: err.message });
+
+      try {
+        const name = fields.name?.[0];
+        const phone = fields.phone?.[0];
+        const clientEmail = fields.email?.[0];
+        const date = fields.date?.[0];
+        const time = fields.time?.[0];
+        const totalPrice = fields.totalPrice?.[0];
+        const services = JSON.parse(fields.services?.[0] || "[]");
+
+        // качване в Cloudinary ако има файл
+        let designUrl = "";
+        if (files.design && files.design[0]) {
+          const filePath = files.design[0].filepath;
+          const upload = await cloudinary.uploader.upload(filePath, { folder: "pavnailedit_bookings" });
+          designUrl = upload.secure_url;
+          fs.unlinkSync(filePath);
+        }
+
+        // проверка за зает час
+        const snapshot = await bookingsCollection.where("date", "==", date).where("time", "==", time).get();
+        if (!snapshot.empty) return res.status(400).json({ error: "Този час вече е зает" });
+
+        // запис в Firestore
+        await bookingsCollection.add({ name, phone, clientEmail, services, date, time, designUrl, totalPrice });
+
+        // добавяне в Google Calendar
+        const startDateTime = parseDateTime(date, time);
+        const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);
+        await calendar.events.insert({
+          calendarId: process.env.TECH_CALENDAR_ID,
+          requestBody: {
+            summary: `Маникюр: ${name}`,
+            description: `Услуги: ${services.join(", ")}\nТелефон: ${phone}\nОбщо: ${totalPrice} лв`,
+            start: formatDateForGoogleCalendar(startDateTime),
+            end: formatDateForGoogleCalendar(endDateTime),
+            attendees: clientEmail ? [{ email: clientEmail }] : [],
+          },
+        });
+
+        const icsContent = generateICS(name, services, phone, date, time, totalPrice);
+
+        // имейл до техника
+        await sgMail.send({
+          to: process.env.TECH_EMAIL,
+          from: process.env.SENDGRID_FROM_EMAIL,
+          subject: `Нов запис: ${name} — ${date} ${time}`,
+          html: `
+            <div style="font-family:Roboto,sans-serif;background:#fff0f4;padding:25px;border-radius:20px;">
+              <h2 style="color:#ff6ec4;">💅🏻 Нов запис</h2>
+              <p><strong>Име:</strong> ${name}</p>
+              <p><strong>Телефон:</strong> ${phone}</p>
+              <p><strong>Дата:</strong> ${date}</p>
+              <p><strong>Час:</strong> ${time}</p>
+              <h3 style="color:#f9a1c2;">✨ Услуги:</h3>
+              <ul>${services.map((s) => `<li>💖 ${s}</li>`).join("")}</ul>
+              <p style="font-size:18px;font-weight:700;color:#ff6ec4;">💰 Общо: ${totalPrice} лв</p>
+              ${designUrl ? `<p><strong>📸 Прикачен дизайн:</strong></p><img src="${designUrl}" style="max-width:300px;border-radius:10px;">` : ""}
+            </div>`,
+          attachments: [
+            {
+              content: Buffer.from(icsContent).toString("base64"),
+              filename: "booking.ics",
+              type: "text/calendar",
+              disposition: "attachment",
+            },
+          ],
+        });
+
+        // имейл до клиента
+        await sgMail.send({
+          to: clientEmail,
+          from: process.env.SENDGRID_FROM_EMAIL,
+          subject: `Потвърждение на час: ${date} ${time}`,
+          html: `
+            <div style="font-family:Roboto,sans-serif;background:#fff0f4;padding:25px;border-radius:20px;">
+              <h2 style="color:#ff6ec4;text-align:center;">💅🏻 Здравей, ${name}!</h2>
+              <p>Вашият час е успешно запазен.</p>
+              <p><strong>Дата:</strong> ${date}</p>
+              <p><strong>Час:</strong> ${time}</p>
+              <ul>${services.map((s) => `<li>💖 ${s}</li>`).join("")}</ul>
+              <p style="font-weight:700;color:#ff6ec4;">💰 Общо: ${totalPrice} лв</p>
+              <p style="margin-top:15px;">Очакваме те 💞 ул. Благовест 1</p>
+            </div>`,
+        });
+
+        return res.status(200).json({ message: "Часът е запазен и снимката е изпратена!" });
+      } catch (err) {
+        console.error("❌ Error:", err);
+        res.status(500).json({ error: "Server error", details: err.message });
+      }
+    });
+    return;
+  }
+
+  res.setHeader("Allow", ["GET", "POST"]);
+  return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
 }
