@@ -1,84 +1,97 @@
-const dayOffInput = document.getElementById("dayOffInput");
-const addDayOffBtn = document.getElementById("addDayOff");
-const dayOffList = document.getElementById("dayOffList");
-const appointmentList = document.getElementById("appointmentList");
+const adminPanel = document.getElementById('admin-panel');
+const dayOffInput = document.getElementById('dayOffInput');
+const addDayOffBtn = document.getElementById('addDayOff');
+const dayOffList = document.getElementById('dayOffList');
+const logoutBtn = document.getElementById('logout');
 
-// ======= Дни почивка =======
-async function fetchDaysOff() {
-    const res = await fetch('http://localhost:3000/api/dayoff');
-    const days = await res.json();
-    dayOffList.innerHTML = '';
-    days.forEach(day => {
-        const li = document.createElement('li');
-        li.textContent = day;
-        const removeBtn = document.createElement('button');
-        removeBtn.textContent = '❌';
-        removeBtn.onclick = async () => {
-            await removeDayOff(day);
-        }
-        li.appendChild(removeBtn);
-        dayOffList.appendChild(li);
-    });
-}
+const appointmentsContainer = document.createElement('div');
+appointmentsContainer.id = 'appointmentsContainer';
+appointmentsContainer.style.marginTop = '20px';
+adminPanel.querySelector('.panel-box').appendChild(appointmentsContainer);
 
-async function addDayOff() {
-    const date = dayOffInput.value;
-    if (!date) return;
-    await fetch('http://localhost:3000/api/dayoff', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ date })
-    });
-    dayOffInput.value = '';
-    fetchDaysOff();
-}
-
-async function removeDayOff(date) {
-    // временно само премахва от списъка
-    dayOffList.querySelectorAll('li').forEach(li => {
-        if (li.textContent.includes(date)) li.remove();
-    });
-}
-
-// ======= Резервации =======
+// Зареждане на всички резервации
 async function fetchAppointments() {
-    const res = await fetch('http://localhost:3000/api/appointments');
-    const appointments = await res.json();
-    appointmentList.innerHTML = '';
-    appointments.forEach(a => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            ${a.client} - ${a.date} ${a.time} [${a.status}]
-            <button onclick="cancel(${a.id})">Откажи</button>
-            <button onclick="reschedule(${a.id})">Премести</button>
+    try {
+        const res = await fetch('/api/book.js'); // твоя API
+        const appointments = await res.json();
+
+        renderAppointments(appointments);
+    } catch (err) {
+        console.error('Error fetching appointments:', err);
+    }
+}
+
+// Показване на резервации в админ панела
+function renderAppointments(appointments) {
+    appointmentsContainer.innerHTML = '<h3>Списък с резервации</h3>';
+    if (!appointments.length) {
+        appointmentsContainer.innerHTML += '<p>Няма резервации.</p>';
+        return;
+    }
+
+    appointments.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'appointment-card';
+        div.style.background = '#fff0f5';
+        div.style.margin = '10px 0';
+        div.style.padding = '12px';
+        div.style.borderRadius = '12px';
+        div.style.boxShadow = '0 4px 12px rgba(249,161,194,0.2)';
+        div.innerHTML = `
+            <strong>${app.client}</strong> - ${app.email}<br>
+            📅 ${app.date} ⏰ ${app.time}<br>
+            <button class="cancel-btn" style="margin-right: 8px;">Откажи</button>
+            <button class="reschedule-btn">Промени час</button>
         `;
-        appointmentList.appendChild(li);
+
+        // Отказване на резервация
+        div.querySelector('.cancel-btn').addEventListener('click', async () => {
+            if(!confirm(`Сигурни ли сте, че искате да откажете час на ${app.client}?`)) return;
+            await fetch('/api/book.js/cancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: app.id })
+            });
+            fetchAppointments();
+        });
+
+        // Смяна на дата/час
+        div.querySelector('.reschedule-btn').addEventListener('click', async () => {
+            const newDate = prompt('Нова дата (YYYY-MM-DD):', app.date);
+            const newTime = prompt('Нов час (HH:MM):', app.time);
+            if(!newDate || !newTime) return;
+            await fetch('/api/book.js/reschedule', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: app.id, newDate, newTime })
+            });
+            fetchAppointments();
+        });
+
+        appointmentsContainer.appendChild(div);
     });
 }
 
-async function cancel(id) {
-    await fetch('http://localhost:3000/api/cancel', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({id})
-    });
-    fetchAppointments();
-}
+// Добавяне на почивен ден
+addDayOffBtn.addEventListener('click', () => {
+    const date = dayOffInput.value;
+    if (!date) return alert('Изберете дата!');
+    // Тук можеш да пратиш POST към API за почивни дни
+    const li = document.createElement('li');
+    li.textContent = date;
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = '❌';
+    removeBtn.addEventListener('click', () => li.remove());
+    li.appendChild(removeBtn);
+    dayOffList.appendChild(li);
+    dayOffInput.value = '';
+});
 
-async function reschedule(id) {
-    const newDate = prompt("Нова дата (YYYY-MM-DD):");
-    const newTime = prompt("Нов час (HH:MM):");
-    if (!newDate || !newTime) return;
-    await fetch('http://localhost:3000/api/reschedule', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({id, newDate, newTime})
-    });
-    fetchAppointments();
-}
+// Logout
+logoutBtn.addEventListener('click', () => {
+    adminPanel.classList.add('hidden');
+});
 
-// ======= Събития =======
-addDayOffBtn.addEventListener('click', addDayOff);
-
-fetchDaysOff();
+// Показване на панела и зареждане
+adminPanel.classList.remove('hidden');
 fetchAppointments();
