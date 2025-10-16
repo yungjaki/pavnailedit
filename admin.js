@@ -13,7 +13,8 @@ adminPanel.querySelector('.panel-box').appendChild(appointmentsContainer);
 async function fetchAppointments() {
     try {
         const res = await fetch('/api/book.js'); // твоя API
-        const appointments = await res.json();
+        const data = await res.json();
+        const appointments = data.bookings || [];
 
         renderAppointments(appointments);
     } catch (err) {
@@ -38,7 +39,7 @@ function renderAppointments(appointments) {
         div.style.borderRadius = '12px';
         div.style.boxShadow = '0 4px 12px rgba(249,161,194,0.2)';
         div.innerHTML = `
-            <strong>${app.client}</strong> - ${app.email}<br>
+            <strong>${app.name}</strong> - ${app.clientEmail || ''}<br>
             📅 ${app.date} ⏰ ${app.time}<br>
             <button class="cancel-btn" style="margin-right: 8px;">Откажи</button>
             <button class="reschedule-btn">Промени час</button>
@@ -46,11 +47,11 @@ function renderAppointments(appointments) {
 
         // Отказване на резервация
         div.querySelector('.cancel-btn').addEventListener('click', async () => {
-            if(!confirm(`Сигурни ли сте, че искате да откажете час на ${app.client}?`)) return;
-            await fetch('/api/book.js/cancel', {
+            if(!confirm(`Сигурни ли сте, че искате да откажете час на ${app.name}?`)) return;
+            await fetch('/api/admin/cancel', {  // ще трябва да създадеш този endpoint
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: app.id })
+                body: JSON.stringify({ id: app.id })  // app.id трябва да се взема от Firestore document id
             });
             fetchAppointments();
         });
@@ -60,7 +61,7 @@ function renderAppointments(appointments) {
             const newDate = prompt('Нова дата (YYYY-MM-DD):', app.date);
             const newTime = prompt('Нов час (HH:MM):', app.time);
             if(!newDate || !newTime) return;
-            await fetch('/api/book.js/reschedule', {
+            await fetch('/api/admin/reschedule', {  // ще трябва да създадеш този endpoint
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: app.id, newDate, newTime })
@@ -76,7 +77,6 @@ function renderAppointments(appointments) {
 addDayOffBtn.addEventListener('click', () => {
     const date = dayOffInput.value;
     if (!date) return alert('Изберете дата!');
-    // Тук можеш да пратиш POST към API за почивни дни
     const li = document.createElement('li');
     li.textContent = date;
     const removeBtn = document.createElement('button');
