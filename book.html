@@ -101,12 +101,9 @@ const serviceOptions = document.querySelectorAll(".service-option");
 const totalPriceEl = document.getElementById("totalPrice");
 let currentTotal = 0;
 
-// Holidays & Breaks
 const holidays = ["01.01.2025","03.03.2025","01.05.2025","06.05.2025","24.05.2025","06.09.2025","22.09.2025","24.12.2025","25.12.2025","26.12.2025"];
 const breaks = [{ start: "20.12.2025", end: "25.12.2025" }];
 
-
-// Count available times
 function getAvailableTimesCount(dateStr){
     const bookedTimes = bookings.filter(b=>b.date===dateStr).map(b=>b.time);
     let allTimes = ["10:00"];
@@ -114,58 +111,39 @@ function getAvailableTimesCount(dateStr){
     return allTimes.filter(t=>!bookedTimes.includes(t)).length;
 }
 
-// Initialize Flatpickr
 const fp = flatpickr("#date", {
     locale: "bg",
     minDate: "today",
     dateFormat: "d.m.Y",
-    disable: [
-        function(date) {
-            return date.getDay() === 1; // ❌ Забрани понеделници по подразбиране
-        }
-    ],
+    disable: [ d => d.getDay() === 1 ],
     disableMobile: true,
     onChange: checkAvailability,
-    onDayCreate: function(dObj, dStr, fpDayElem) {
+    onDayCreate: (dObj, dStr, fpDayElem) => {
         if (!fpDayElem.dateObj) return;
-
         const day = fpDayElem.dateObj.getDate().toString().padStart(2, '0');
         const month = (fpDayElem.dateObj.getMonth() + 1).toString().padStart(2, '0');
         const year = fpDayElem.dateObj.getFullYear();
         const dateStr = `${day}.${month}.${year}`;
-
-        // 🌴 Почивни периоди
         if (isBreak(dateStr)) {
             fpDayElem.classList.add('flatpickr-disabled');
             fpDayElem.innerHTML = '🌴';
-            fpDayElem.style.color = "#ff6ec4";
-            fpDayElem.style.fontSize = "1.2rem";
         }
-
-        // 🔄 Оцветяване по заетост
         const availableCount = getAvailableTimesCount(dateStr);
-        if (availableCount === 0) {
-            fpDayElem.classList.add('full');
-        } else if (availableCount <= 2) {
-            fpDayElem.classList.add('almost-full');
-        }
+        if (availableCount === 0) fpDayElem.classList.add('full');
+        else if (availableCount <= 2) fpDayElem.classList.add('almost-full');
     }
 });
 
-// Time button selection
-timeButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-        if (btn.disabled) return;
-        timeButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-    });
-});
+timeButtons.forEach(btn => btn.addEventListener("click", () => {
+    if (btn.disabled) return;
+    timeButtons.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+}));
 
-// Service selection and counters
 const countableServices = {"1 нокът":5,"3D цветя":4,"Панделка":4};
 serviceOptions.forEach(opt => {
-    const serviceName = opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim();
-    if(countableServices[serviceName]){
+    const name = opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim();
+    if(countableServices[name]){
         const counter = document.createElement('div');
         counter.classList.add('counter');
         counter.textContent = '1';
@@ -178,14 +156,14 @@ serviceOptions.forEach(opt => {
                 counter.textContent = '1';
             } else {
                 let count = parseInt(counter.textContent);
-                const maxCount = countableServices[serviceName];
-                if(count < maxCount) { count++; counter.textContent = count; }
-                else { opt.classList.remove('active'); counter.style.display = 'none'; counter.textContent = '1'; }
+                const max = countableServices[name];
+                if(count < max) { count++; counter.textContent = count; }
+                else { opt.classList.remove('active'); counter.style.display='none'; counter.textContent='1'; }
             }
             updatePrice();
         });
     } else {
-        opt.addEventListener('click', () => { opt.classList.toggle('active'); updatePrice(); });
+        opt.addEventListener('click', ()=>{ opt.classList.toggle('active'); updatePrice(); });
     }
 });
 
@@ -197,201 +175,79 @@ function updatePrice() {
             total += parseFloat(opt.dataset.price) * count;
         }
     });
-    animatePrice(currentTotal, total, 300);
+    totalPriceEl.textContent = `Общо: ${total.toFixed(2)}лв`;
     currentTotal = total;
-    totalPriceEl.classList.add("animate");
-    setTimeout(()=>totalPriceEl.classList.remove("animate"),200);
 }
 
-function animatePrice(start, end, duration){
-    const startTime = performance.now();
-    function animate(currentTime){
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const value = start + (end - start) * progress;
-        totalPriceEl.textContent = `Общо: ${value.toFixed(2)}лв`;
-        if(progress < 1) requestAnimationFrame(animate);
-    }
-    requestAnimationFrame(animate);
-}
+function isBreak(dateStr){const[d,m,y]=dateStr.split(".").map(Number);const date=new Date(y,m-1,d);return breaks.some(b=>{const[sd,sm,sy]=b.start.split(".").map(Number);const[ed,em,ey]=b.end.split(".").map(Number);return date>=new Date(sy,sm-1,sd)&&date<=new Date(ey,em-1,ed);});}
+function isWeekendOrHoliday(dateStr){const[d,m,y]=dateStr.split(".").map(Number);const date=new Date(y,m-1,d);const day=date.getDay();return day===0||day===6||holidays.includes(dateStr);}
 
-
-function isBreak(dateStr) {
-    const [day, month, year] = dateStr.split(".").map(Number);
-    const date = new Date(year, month - 1, day);
-
-    return breaks.some(b => {
-        const [startDay, startMonth, startYear] = b.start.split(".").map(Number);
-        const [endDay, endMonth, endYear] = b.end.split(".").map(Number);
-        const startDate = new Date(startYear, startMonth - 1, startDay);
-        const endDate = new Date(endYear, endMonth - 1, endDay);
-        return date >= startDate && date <= endDate;
-    });
-}
-
-
-function isWeekendOrHoliday(dateStr) {
-    const [day, month, year] = dateStr.split(".").map(Number);
-    const date = new Date(year, month - 1, day);
-
-    const dayOfWeek = date.getDay(); 
-    // 0 = неделя, 6 = събота
-    if (dayOfWeek === 0 || dayOfWeek === 6) return true;
-
-    // Проверка дали е празник
-    return holidays.includes(dateStr);
-}
-
-// --- Проверка на заетите часове и блокиране на дати ---
-// --- Проверка на заетите часове и блокиране на дати ---
-function checkAvailability() {
-    const date = dateInput.value;
-    if (!date) return;
-
-    const bookedTimes = bookings
-        .filter(b => b.date === date)
-        .map(b => b.time);
-
-    timeButtons.forEach(btn => {
-        const time = btn.dataset.time;
-
-        if (!isWeekendOrHoliday(date)) {
-            // Делничен ден (без уикенд и празник)
-            if (time !== "10:00") {
-                btn.disabled = true;
-                btn.textContent = "Недостъпен";
-                btn.classList.remove("active");
-                btn.classList.add("disabled-btn");
-            } else {
-                if (bookedTimes.includes(time)) {
-                    btn.disabled = true;
-                    btn.textContent = "Зает";
-                    btn.classList.remove("active");
-                    btn.classList.add("disabled-btn");
-                } else {
-                    btn.disabled = false;
-                    btn.textContent = time;
-                    btn.classList.remove("disabled-btn");
-                }
-            }
-        } else {
-            // Уикенд или празник
-            if (bookedTimes.includes(time)) {
-                btn.disabled = true;
-                btn.textContent = "Зает";
-                btn.classList.remove("active");
-                btn.classList.add("disabled-btn");
-            } else {
-                btn.disabled = false;
-                btn.textContent = time;
-                btn.classList.remove("disabled-btn");
-            }
+function checkAvailability(){
+    const date=dateInput.value;if(!date)return;
+    const bookedTimes=bookings.filter(b=>b.date===date).map(b=>b.time);
+    timeButtons.forEach(btn=>{
+        const t=btn.dataset.time;
+        if(!isWeekendOrHoliday(date)){
+            if(t!=="10:00"){btn.disabled=true;btn.textContent="Недостъпен";btn.classList.add("disabled-btn");}
+            else if(bookedTimes.includes(t)){btn.disabled=true;btn.textContent="Зает";btn.classList.add("disabled-btn");}
+            else{btn.disabled=false;btn.textContent=t;btn.classList.remove("disabled-btn");}
+        }else{
+            if(bookedTimes.includes(t)){btn.disabled=true;btn.textContent="Зает";btn.classList.add("disabled-btn");}
+            else{btn.disabled=false;btn.textContent=t;btn.classList.remove("disabled-btn");}
         }
     });
-
-    // --- Проверка за напълно заети дати ---
-    const fullyBookedDates = [];
-    const dates = [...new Set(bookings.map(b => b.date))];
-    dates.forEach(d => {
-        const timesOnDate = bookings
-            .filter(b => b.date === d)
-            .map(b => b.time);
-
-        if (isWeekendOrHoliday(d)) {
-            // Уикенд → и трите часа трябва да са заети
-            if (["10:00", "14:00", "16:30"].every(t => timesOnDate.includes(t))) {
-                fullyBookedDates.push(d);
-            }
-        } else {
-            // Делничен ден → само 10:00 е валиден, ако е зает → датата е заета
-            if (timesOnDate.includes("10:00")) {
-                fullyBookedDates.push(d);
-            }
-        }
-    });
-
-    // 🔁 Обединена проверка: понеделници + заети дати
-    fp.set('disable', [
-        function(date) {
-            return date.getDay() === 1; // ❌ Понеделник
-        },
-        ...fullyBookedDates // ❌ Заети дати
-    ]);
 }
 
-
-// Зареждане на вече записаните часове от Firestore
-async function loadBookings() {
-    try {
-        const res = await fetch("/api/book");
-        const data = await res.json();
-        bookings = data.bookings || [];
+async function loadBookings(){
+    try{
+        const res=await fetch("/api/book");
+        const data=await res.json();
+        bookings=data.bookings||[];
         checkAvailability();
-    } catch(err) {
-        console.error(err);
-    }
+    }catch(e){console.error(e);}
 }
 loadBookings();
 
-// --- Записване на час ---
-// замести целия addEventListener за бутона
 bookBtn.addEventListener("click", async () => {
-  const name = document.getElementById("name").value;
-  const phone = document.getElementById("phone").value;
-  const email = document.getElementById("email").value;
-  const selectedServices = Array.from(serviceOptions)
-    .filter(opt => opt.classList.contains("active"))
-    .map(opt => {
-      const count = parseInt(opt.querySelector('.counter')?.textContent) || 1;
-      return count > 1
-        ? `${opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim()} x${count}`
-        : opt.textContent.replace(/\d+[,\.]?\д*лв.*/,'').trim();
+  const name=document.getElementById("name").value;
+  const phone=document.getElementById("phone").value;
+  const email=document.getElementById("email").value;
+  const selectedServices=Array.from(serviceOptions)
+    .filter(o=>o.classList.contains("active"))
+    .map(o=>{
+      const c=parseInt(o.querySelector('.counter')?.textContent)||1;
+      return c>1?`${o.textContent.replace(/\d+[,\.]?\д*лв.*/,'').trim()} x${c}`:o.textContent.replace(/\д+[,\.]?\д*лв.*/,'').trim();
     });
-
-  const date = dateInput.value;
-  const time = document.querySelector(".time-btn.active")?.dataset.time;
-  const totalPrice = currentTotal.toFixed(2);
-  const designFile = document.getElementById("design").files[0];
-
-  if (!name || !phone || !email || !date || !time || selectedServices.length === 0) {
+  const date=dateInput.value;
+  const time=document.querySelector(".time-btn.active")?.dataset.time;
+  const totalPrice=currentTotal.toFixed(2);
+  const designFile=document.getElementById("design").files[0];
+  if(!name||!phone||!email||!date||!time||selectedServices.length===0){
     alert("❌ Моля, попълнете всички задължителни полета.");
     return;
   }
-
-  const formData = new FormData();
-  formData.append("name", name);
-  formData.append("phone", phone);
-  formData.append("email", email);
-  formData.append("services", JSON.stringify(selectedServices));
-  formData.append("date", date);
-  formData.append("time", time);
-  formData.append("totalPrice", totalPrice);
-  if (designFile) formData.append("design", designFile);
-
-  try {
-    const res = await fetch("/api/book", {
-      method: "POST",
-      body: formData,
-    });
-    const data = await res.json();
-    if (res.ok) {
+  const formData=new FormData();
+  formData.append("name",name);
+  formData.append("phone",phone);
+  formData.append("email",email);
+  formData.append("services",JSON.stringify(selectedServices));
+  formData.append("date",date);
+  formData.append("time",time);
+  formData.append("totalPrice",totalPrice);
+  if(designFile)formData.append("design",designFile);
+  try{
+    const res=await fetch("/api/book",{method:"POST",body:formData});
+    const data=await res.json();
+    if(res.ok){
       alert(`✅ ${data.message}`);
       document.getElementById("bookingForm").reset();
-      serviceOptions.forEach(opt => {
-        opt.classList.remove("active");
-        const counter = opt.querySelector('.counter');
-        if (counter) counter.style.display = 'none';
-      });
+      serviceOptions.forEach(o=>{o.classList.remove("active");const c=o.querySelector('.counter');if(c)c.style.display='none';});
       updatePrice();
-    } else {
-      alert(`❌ ${data.error || "Грешка при запазването"}`);
-    }
-  } catch (err) {
-    console.error(err);
-    alert("❌ Грешка при свързване със сървъра.");
-  }
+      await loadBookings(); // 🔁 обновява календара
+      checkAvailability();  // ✅ опреснява бутоните за часове
+    }else alert(`❌ ${data.error||"Грешка при запазването"}`);
+  }catch(e){console.error(e);alert("❌ Грешка при свързване със сървъра.");}
 });
-
 </script>
 </body>
 </html>
