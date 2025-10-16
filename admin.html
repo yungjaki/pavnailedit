@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel - PavNailedIt</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="admin-panel">
+  <div class="panel-box">
+    <h2>🌸 Admin Panel</h2>
+    
+    <h3>📅 Управление на почивни дни</h3>
+    <div class="panel-actions">
+      <input type="date" id="dayOffInput">
+      <button id="addDayOff">➕ Добави</button>
+    </div>
+    <ul id="dayOffList"></ul>
+
+    <h3>💅 Резервации</h3>
+    <ul id="appointmentList"></ul>
+
+    <button id="logout">🚪 Изход</button>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>
