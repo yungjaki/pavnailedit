@@ -5,7 +5,7 @@ import sgMail from "@sendgrid/mail";
 import { google } from "googleapis";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
-import serviceAccount from "../bookingthing.json" assert { type: "json" };
+const serviceAccount = require("../bookingthing.json");
 
 export const config = {
   api: { bodyParser: false },
