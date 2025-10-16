@@ -118,20 +118,34 @@ const fp = flatpickr("#date", {
     disable: [ d => d.getDay() === 1 ],
     disableMobile: true,
     onChange: checkAvailability,
-    onDayCreate: (dObj, dStr, fpDayElem) => {
-        if (!fpDayElem.dateObj) return;
-        const day = fpDayElem.dateObj.getDate().toString().padStart(2, '0');
-        const month = (fpDayElem.dateObj.getMonth() + 1).toString().padStart(2, '0');
-        const year = fpDayElem.dateObj.getFullYear();
-        const dateStr = `${day}.${month}.${year}`;
-        if (isBreak(dateStr)) {
-            fpDayElem.classList.add('flatpickr-disabled');
-            fpDayElem.innerHTML = '🌴';
-        }
-        const availableCount = getAvailableTimesCount(dateStr);
-        if (availableCount === 0) fpDayElem.classList.add('full');
-        else if (availableCount <= 2) fpDayElem.classList.add('almost-full');
+onDayCreate: (dObj, dStr, fpDayElem) => {
+    if (!fpDayElem.dateObj) return;
+
+    const day = fpDayElem.dateObj.getDate().toString().padStart(2, '0');
+    const month = (fpDayElem.dateObj.getMonth() + 1).toString().padStart(2, '0');
+    const year = fpDayElem.dateObj.getFullYear();
+    const dateStr = `${day}.${month}.${year}`;
+
+    // Проверка за почивки
+    if (isBreak(dateStr)) {
+        fpDayElem.classList.add('flatpickr-disabled');
+        fpDayElem.innerHTML = '🌴';
     }
+
+    // Проверка за заетите дати
+    const bookedTimes = bookings.filter(b => b.date === dateStr).map(b => b.time);
+    if (bookedTimes.length >= 1) {
+        fpDayElem.classList.add('flatpickr-disabled');
+        fpDayElem.style.backgroundColor = '#f2d9e3'; // светло сиво-розово
+        fpDayElem.style.color = '#555';
+        fpDayElem.title = 'Заето';
+    }
+
+    // Допълнителни класове за почти пълни дни
+    const availableCount = getAvailableTimesCount(dateStr);
+    if (availableCount === 0) fpDayElem.classList.add('full');
+    else if (availableCount <= 2) fpDayElem.classList.add('almost-full');
+}
 });
 
 timeButtons.forEach(btn => btn.addEventListener("click", () => {
