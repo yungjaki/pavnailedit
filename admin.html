@@ -4,7 +4,124 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel - PavNailedIt</title>
-<link rel="stylesheet" href="style.css">
+<style>
+body {
+    font-family: 'Roboto', sans-serif;
+    background: #fff0f4;
+    margin: 0;
+    padding: 0;
+}
+#admin-panel {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+.panel-box {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 800px;
+    box-shadow: 0 8px 20px rgba(249,161,194,0.3);
+}
+.panel-box h2, .panel-box h3 {
+    margin: 10px 0;
+    color: #ff6ec4;
+}
+.panel-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.panel-actions input[type="date"] {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+.panel-actions button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 8px;
+    background: #ff6ec4;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.panel-actions button:hover { background: #f9a1c2; }
+
+#dayOffList {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+#dayOffList li {
+    display: flex;
+    justify-content: space-between;
+    background: #ffe4f0;
+    margin: 5px 0;
+    padding: 8px 12px;
+    border-radius: 12px;
+}
+#dayOffList li button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+#appointmentsContainer {
+    max-height: 400px; /* фиксирана височина */
+    overflow-y: auto;
+    border-top: 1px solid #ff6ec4;
+    padding-top: 10px;
+}
+
+.appointment-card {
+    background: #fff0f5;
+    margin: 10px 0;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(249,161,194,0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.appointment-info {
+    flex: 1 1 70%;
+}
+.appointment-info strong {
+    font-size: 1.1em;
+}
+.appointment-buttons {
+    display: flex;
+    gap: 8px;
+    flex: 1 1 30%;
+    justify-content: flex-end;
+}
+.appointment-buttons button {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.cancel-btn { background: #ff6ec4; color: white; }
+.cancel-btn:hover { background: #f9a1c2; }
+.reschedule-btn { background: #fff; border: 1px solid #ff6ec4; color: #ff6ec4; }
+.reschedule-btn:hover { background: #ff6ec4; color: white; }
+
+#logout {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: none;
+    background: #ff6ec4;
+    color: white;
+    cursor: pointer;
+}
+#logout:hover { background: #f9a1c2; }
+</style>
 </head>
 <body>
 
@@ -20,7 +137,7 @@
     <ul id="dayOffList"></ul>
 
     <h3>💅 Резервации</h3>
-    <ul id="appointmentList"></ul>
+    <div id="appointmentsContainer"></div>
 
     <button id="logout">🚪 Изход</button>
   </div>
