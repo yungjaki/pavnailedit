@@ -334,6 +334,7 @@ async function loadBookings() {
 loadBookings();
 
 // --- Записване на час ---
+// замести целия addEventListener за бутона
 bookBtn.addEventListener("click", async () => {
   const name = document.getElementById("name").value;
   const phone = document.getElementById("phone").value;
@@ -344,13 +345,13 @@ bookBtn.addEventListener("click", async () => {
       const count = parseInt(opt.querySelector('.counter')?.textContent) || 1;
       return count > 1
         ? `${opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim()} x${count}`
-        : opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim();
+        : opt.textContent.replace(/\d+[,\.]?\д*лв.*/,'').trim();
     });
 
   const date = dateInput.value;
   const time = document.querySelector(".time-btn.active")?.dataset.time;
-  const designFile = document.getElementById("design").files[0];
   const totalPrice = currentTotal.toFixed(2);
+  const designFile = document.getElementById("design").files[0];
 
   if (!name || !phone || !email || !date || !time || selectedServices.length === 0) {
     alert("❌ Моля, попълнете всички задължителни полета.");
@@ -370,7 +371,7 @@ bookBtn.addEventListener("click", async () => {
   try {
     const res = await fetch("/api/book", {
       method: "POST",
-      body: formData
+      body: formData,
     });
     const data = await res.json();
     if (res.ok) {
@@ -383,13 +384,14 @@ bookBtn.addEventListener("click", async () => {
       });
       updatePrice();
     } else {
-      alert(`❌ Грешка: ${data.error || "Опитайте пак"}`);
+      alert(`❌ ${data.error || "Грешка при запазването"}`);
     }
   } catch (err) {
     console.error(err);
     alert("❌ Грешка при свързване със сървъра.");
   }
 });
+
 </script>
 </body>
 </html>
