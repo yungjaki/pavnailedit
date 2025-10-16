@@ -12,7 +12,7 @@ body {font-family:'Roboto',sans-serif;background-color:#f8e3e8;color:#2c2c2c;pad
 h1 {font-size:3rem;text-align:center;margin-bottom:2rem;color:#f9a1c2;}
 form {max-width:600px;margin:0 auto;background:rgba(255,255,255,0.8);padding:2rem;border-radius:25px;box-shadow:0 10px 25px rgba(0,0,0,0.1);}
 label {display:block;margin-top:1rem;font-weight:500;}
-input[type=text], input[type=tel], input[type=email], select {width:100%;padding:0.7rem;border-radius:15px;border:1px solid #f9d0d8;margin-top:0.3rem;font-size:1rem;background-color:#fff0f4;}
+input[type=text], input[type=tel], input[type=email], input[type=file], select {width:100%;padding:0.7rem;border-radius:15px;border:1px solid #f9d0d8;margin-top:0.3rem;font-size:1rem;background-color:#fff0f4;}
 .time-buttons {display:flex;gap:1rem;margin-top:1rem;}
 .time-btn {flex:1;padding:0.7rem;border-radius:50px;border:1px solid #f8b7d1;background:#f9d0d8;font-weight:500;cursor:pointer;transition:all 0.3s;}
 .time-btn.active {background:#ff6ec4;color:#fff;box-shadow:0 5px 15px rgba(255,110,196,0.4);}
@@ -27,7 +27,7 @@ input[type=text], input[type=tel], input[type=email], select {width:100%;padding
 #addons-title {font-weight:600;margin-top:1.5rem;margin-bottom:0.5rem;color:#f9a1c2;}
 input#date {padding:0.7rem;border-radius:15px;border:1px solid #f9d0d8;background-color:#fff0f4;width:100%;margin-top:0.3rem;font-size:1rem;transition:all 0.3s;}
 .flatpickr-calendar {background:#fff0f4 !important;border:2px solid #f9a1c2 !important;border-radius:20px !important;box-shadow:0 10px 25px rgba(255,110,196,0.3) !important;}
-#totalPrice {margin-top:1rem;font-weight:600;font-size:1.2rem;color:#ff6ec4;transition:transform 0.3s ease, opacity 0.3s ease;transform:translateY(0);opacity:1;}
+#totalPrice {margin-top:1rem;font-weight:600;font-size:1.2rem;color:#ff6ec4;transition:transform 0.3s ease, opacity 0.3s ease;}
 #totalPrice.animate {transform:translateY(-5px);opacity:0.7;}
 button {display:block;width:100%;margin-top:1.5rem;padding:0.8rem;border:none;border-radius:50px;background:linear-gradient(90deg,#f8b7d1,#f9a1c2);color:#fff;font-size:1.2rem;font-weight:600;cursor:pointer;transition:transform 0.2s, box-shadow 0.2s;}
 button:hover {transform:scale(1.05);box-shadow:0 8px 20px rgba(255,110,196,0.4);}
@@ -100,157 +100,142 @@ const serviceOptions = document.querySelectorAll(".service-option");
 const totalPriceEl = document.getElementById("totalPrice");
 let currentTotal = 0;
 
+// Празници и почивки
 const holidays = ["01.01.2025","03.03.2025","01.05.2025","06.05.2025","24.05.2025","06.09.2025","22.09.2025","24.12.2025","25.12.2025","26.12.2025"];
 const breaks = [{ start: "20.12.2025", end: "25.12.2025" }];
 
-function getAvailableTimesCount(dateStr){
-    const bookedTimes = bookings.filter(b => b.date === dateStr).map(b => b.time);
-    let allTimes = ["10:00"];
-    if(isWeekendOrHoliday(dateStr)) allTimes.push("14:00","16:30");
-    return allTimes.filter(t => !bookedTimes.includes(t)).length;
+function isBreak(dateStr){
+    const [d,m,y] = dateStr.split(".").map(Number);
+    const date = new Date(y,m-1,d);
+    return breaks.some(b=>{
+        const [sd,sm,sy] = b.start.split(".").map(Number);
+        const [ed,em,ey] = b.end.split(".").map(Number);
+        return date>=new Date(sy,sm-1,sd)&&date<=new Date(ey,em-1,ed);
+    });
 }
 
-function isBreak(dateStr){const[d,m,y]=dateStr.split(".").map(Number);const date=new Date(y,m-1,d);return breaks.some(b=>{const[sd,sm,sy]=b.start.split(".").map(Number);const[ed,em,ey]=b.end.split(".").map(Number);return date>=new Date(sy,sm-1,sd)&&date<=new Date(ey,em-1,ed);});}
-function isWeekendOrHoliday(dateStr){const[d,m,y]=dateStr.split(".").map(Number);const date=new Date(y,m-1,d);const day=date.getDay();return day===0||day===6||holidays.includes(dateStr);}
+function isWeekendOrHoliday(dateStr){
+    const [d,m,y] = dateStr.split(".").map(Number);
+    const date = new Date(y,m-1,d);
+    return date.getDay()===0||date.getDay()===6||holidays.includes(dateStr);
+}
 
-// зареждане на bookings и след това инициализация на календара
+function getAvailableTimesCount(dateStr){
+    const bookedTimes = bookings.filter(b=>b.date===dateStr).map(b=>b.time);
+    let allTimes = ["10:00"];
+    if(isWeekendOrHoliday(dateStr)) allTimes.push("14:00","16:30");
+    return allTimes.filter(t=>!bookedTimes.includes(t)).length;
+}
+
+// Flatpickr
+const fp = flatpickr("#date", {
+    locale:"bg",
+    minDate:"today",
+    dateFormat:"d.m.Y",
+    disable:[d=>d.getDay()===1],
+    disableMobile:true,
+    onChange:checkAvailability,
+    onDayCreate:(dObj,dStr,dayElem)=>{
+        if(!dayElem.dateObj) return;
+        const day = dayElem.dateObj.getDate().toString().padStart(2,'0');
+        const month = (dayElem.dateObj.getMonth()+1).toString().padStart(2,'0');
+        const year = dayElem.dateObj.getFullYear();
+        const dateStr = `${day}.${month}.${year}`;
+
+        if(isBreak(dateStr)){
+            dayElem.classList.add('flatpickr-disabled');
+            dayElem.innerHTML='🌴';
+        }
+
+        const availableCount = getAvailableTimesCount(dateStr);
+        if(availableCount===0) dayElem.classList.add('full');
+        else if(availableCount<=2) dayElem.classList.add('almost-full');
+    }
+});
+
+// Time buttons
+timeButtons.forEach(btn=>btn.addEventListener("click",()=>{
+    if(btn.disabled) return;
+    timeButtons.forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+}));
+
+// Services & counters
+const countableServices = {"1 нокът":5,"3D цветя":4,"Панделка":4};
+serviceOptions.forEach(opt=>{
+    const name = opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim();
+    if(countableServices[name]){
+        const counter=document.createElement('div');
+        counter.classList.add('counter');
+        counter.textContent='1';
+        counter.style.display='none';
+        opt.appendChild(counter);
+        opt.addEventListener('click',()=>{
+            if(!opt.classList.contains('active')){ opt.classList.add('active'); counter.style.display='flex'; counter.textContent='1'; }
+            else{ let c=parseInt(counter.textContent); const max=countableServices[name]; if(c<max){ c++; counter.textContent=c; } else { opt.classList.remove('active'); counter.style.display='none'; counter.textContent='1'; } }
+            updatePrice();
+        });
+    } else { opt.addEventListener('click',()=>{ opt.classList.toggle('active'); updatePrice(); }); }
+});
+
+function updatePrice(){
+    let total=0;
+    serviceOptions.forEach(opt=>{
+        if(opt.classList.contains('active')){
+            const count=parseInt(opt.querySelector('.counter')?.textContent)||1;
+            total+=parseFloat(opt.dataset.price)*count;
+        }
+    });
+    totalPriceEl.textContent=`Общо: ${total.toFixed(2)}лв`;
+    currentTotal = total;
+}
+
+// Проверка на заетите часове
+function checkAvailability(){
+    const date=dateInput.value; if(!date) return;
+    const bookedTimes=bookings.filter(b=>b.date===date).map(b=>b.time);
+    timeButtons.forEach(btn=>{
+        const t=btn.dataset.time;
+        if(!isWeekendOrHoliday(date)){
+            if(t!=="10:00"){ btn.disabled=true; btn.textContent="Недостъпен"; btn.classList.add("disabled-btn"); }
+            else if(bookedTimes.includes(t)){ btn.disabled=true; btn.textContent="Зает"; btn.classList.add("disabled-btn"); }
+            else{ btn.disabled=false; btn.textContent=t; btn.classList.remove("disabled-btn"); }
+        } else {
+            if(bookedTimes.includes(t)){ btn.disabled=true; btn.textContent="Зает"; btn.classList.add("disabled-btn"); }
+            else{ btn.disabled=false; btn.textContent=t; btn.classList.remove("disabled-btn"); }
+        }
+    });
+}
+
+// Load bookings
 async function loadBookings(){
     try{
         const res = await fetch("/api/book");
         const data = await res.json();
         bookings = data.bookings || [];
-        initCalendar();
         checkAvailability();
-    }catch(e){console.error(e);}
+    }catch(e){ console.error(e); }
 }
-
-// Инициализация на Flatpickr
-function initCalendar(){
-    flatpickr("#date", {
-        locale: "bg",
-        minDate: "today",
-        dateFormat: "d.m.Y",
-        disable: [ d => d.getDay() === 1 ],
-        disableMobile: true,
-        onChange: checkAvailability,
-        onDayCreate: (dObj, dStr, fpDayElem) => {
-            if (!fpDayElem.dateObj) return;
-
-            const day = fpDayElem.dateObj.getDate().toString().padStart(2,'0');
-            const month = (fpDayElem.dateObj.getMonth()+1).toString().padStart(2,'0');
-            const year = fpDayElem.dateObj.getFullYear();
-            const dateStr = `${day}.${month}.${year}`;
-
-            // почивки
-            if(isBreak(dateStr)){
-                fpDayElem.classList.add('flatpickr-disabled');
-                fpDayElem.innerHTML='🌴';
-            }
-
-            // заетите дати
-            const bookedTimes = bookings.filter(b => b.date === dateStr).map(b => b.time);
-            if(bookedTimes.length >= 1){
-                fpDayElem.classList.add('flatpickr-disabled');
-                fpDayElem.style.backgroundColor = '#f2d9e3';
-                fpDayElem.style.color = '#555';
-                fpDayElem.title = 'Заето';
-            }
-
-            // почти пълни дни
-            const availableCount = getAvailableTimesCount(dateStr);
-            if(availableCount === 0) fpDayElem.classList.add('full');
-            else if(availableCount <= 2) fpDayElem.classList.add('almost-full');
-        }
-    });
-}
-
-// Време
-timeButtons.forEach(btn => btn.addEventListener("click", () => {
-    if (btn.disabled) return;
-    timeButtons.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-}));
-
-// Сервизи и цена
-const countableServices = {"1 нокът":5,"3D цветя":4,"Панделка":4};
-serviceOptions.forEach(opt => {
-    const name = opt.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim();
-    if(countableServices[name]){
-        const counter = document.createElement('div');
-        counter.classList.add('counter');
-        counter.textContent = '1';
-        counter.style.display = 'none';
-        opt.appendChild(counter);
-        opt.addEventListener('click', () => {
-            if(!opt.classList.contains('active')){
-                opt.classList.add('active');
-                counter.style.display = 'flex';
-                counter.textContent = '1';
-            } else {
-                let count = parseInt(counter.textContent);
-                const max = countableServices[name];
-                if(count < max) { count++; counter.textContent = count; }
-                else { opt.classList.remove('active'); counter.style.display='none'; counter.textContent='1'; }
-            }
-            updatePrice();
-        });
-    } else {
-        opt.addEventListener('click', ()=>{ opt.classList.toggle('active'); updatePrice(); });
-    }
-});
-
-function updatePrice() {
-    let total = 0;
-    serviceOptions.forEach(opt => {
-        if(opt.classList.contains("active")){
-            const count = parseInt(opt.querySelector('.counter')?.textContent) || 1;
-            total += parseFloat(opt.dataset.price) * count;
-        }
-    });
-    totalPriceEl.textContent = `Общо: ${total.toFixed(2)}лв`;
-    currentTotal = total;
-}
-
-// Проверка наличност на часовете
-function checkAvailability(){
-    const date=dateInput.value;if(!date)return;
-    const bookedTimes=bookings.filter(b=>b.date===date).map(b=>b.time);
-    timeButtons.forEach(btn=>{
-        const t=btn.dataset.time;
-        if(!isWeekendOrHoliday(date)){
-            if(t!=="10:00"){btn.disabled=true;btn.textContent="Недостъпен";btn.classList.add("disabled-btn");}
-            else if(bookedTimes.includes(t)){btn.disabled=true;btn.textContent="Зает";btn.classList.add("disabled-btn");}
-            else{btn.disabled=false;btn.textContent=t;btn.classList.remove("disabled-btn");}
-        }else{
-            if(bookedTimes.includes(t)){btn.disabled=true;btn.textContent="Зает";btn.classList.add("disabled-btn");}
-            else{btn.disabled=false;btn.textContent=t;btn.classList.remove("disabled-btn");}
-        }
-    });
-}
-
-// Зареждаме bookings
 loadBookings();
 
-// Запазване на час
-const bookBtn = document.getElementById("bookBtn");
-bookBtn.addEventListener("click", async () => {
+// Book button
+document.getElementById("bookBtn").addEventListener("click",async()=>{
     const name=document.getElementById("name").value;
     const phone=document.getElementById("phone").value;
     const email=document.getElementById("email").value;
-    const selectedServices=Array.from(serviceOptions)
-        .filter(o=>o.classList.contains("active"))
-        .map(o=>{
-            const c=parseInt(o.querySelector('.counter')?.textContent)||1;
-            return c>1?`${o.textContent.replace(/\d+[,\.]?\д*лв.*/,'').trim()} x${c}`:o.textContent.replace(/\д+[,\.]?\д*лв.*/,'').trim();
-        });
+    const selectedServices=Array.from(serviceOptions).filter(o=>o.classList.contains("active")).map(o=>{
+        const count=parseInt(o.querySelector('.counter')?.textContent)||1;
+        return count>1?`${o.textContent.replace(/\d+[,\.]?\д*лв.*/,'').trim()} x${count}`:o.textContent.replace(/\d+[,\.]?\д*лв.*/,'').trim();
+    });
     const date=dateInput.value;
     const time=document.querySelector(".time-btn.active")?.dataset.time;
-    const totalPrice=currentTotal.toFixed(2);
     const designFile=document.getElementById("design").files[0];
+
     if(!name||!phone||!email||!date||!time||selectedServices.length===0){
         alert("❌ Моля, попълнете всички задължителни полета.");
         return;
     }
+
     const formData=new FormData();
     formData.append("name",name);
     formData.append("phone",phone);
@@ -258,21 +243,26 @@ bookBtn.addEventListener("click", async () => {
     formData.append("services",JSON.stringify(selectedServices));
     formData.append("date",date);
     formData.append("time",time);
-    formData.append("totalPrice",totalPrice);
+    formData.append("totalPrice",currentTotal.toFixed(2));
     if(designFile) formData.append("design",designFile);
+
     try{
         const res=await fetch("/api/book",{method:"POST",body:formData});
         const data=await res.json();
         if(res.ok){
             alert(`✅ ${data.message}`);
             document.getElementById("bookingForm").reset();
-            serviceOptions.forEach(o=>{o.classList.remove("active");const c=o.querySelector('.counter');if(c)c.style.display='none';});
+            serviceOptions.forEach(o=>{ o.classList.remove("active"); const c=o.querySelector('.counter'); if(c) c.style.display='none'; });
             updatePrice();
             await loadBookings();
-        }else alert(`❌ ${data.error||"Грешка при запазването"}`);
-    }catch(e){console.error(e);alert("❌ Грешка при свързване със сървъра.");}
+        }else{
+            alert(`❌ ${data.error||"Грешка при запазването"}`);
+        }
+    }catch(e){
+        console.error(e);
+        alert("❌ Грешка при свързване със сървъра.");
+    }
 });
 </script>
-
 </body>
 </html>
