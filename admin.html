@@ -1,41 +1,84 @@
 <!DOCTYPE html>
 <html lang="bg">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel - PavNailedIt</title>
-<link rel="stylesheet" href="style.css">
-<style>
-body {font-family:'Roboto',sans-serif;background:#f8e3e8;padding:2rem;}
-.panel-box {max-width:900px;margin:0 auto;background:#fff;padding:2rem;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.1);}
-h2,h3 {color:#ff6ec4;margin-bottom:1rem;}
-button {cursor:pointer;margin-top:0.5rem;padding:0.5rem 1rem;border-radius:15px;border:none;background:#f9a1c2;color:#fff;}
-button.cancel-btn {background:#ff6e6e;}
-button.reschedule-btn {background:#ffb6c1;}
-ul {list-style:none;padding-left:0;}
-.appointment-card {padding:12px;margin:10px 0;border-radius:12px;background:#fff0f5;box-shadow:0 4px 12px rgba(249,161,194,0.2);}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel - PavNailedIt</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f8e3e8;
+      padding: 2rem;
+    }
+
+    .panel-box {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    h2, h3 {
+      color: #ff6ec4;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      cursor: pointer;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      border: none;
+      background: #f9a1c2;
+      color: #fff;
+    }
+
+    button.cancel-btn {
+      background: #ff6e6e;
+    }
+
+    button.reschedule-btn {
+      background: #ffb6c1;
+    }
+
+    .appointment-card {
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 12px;
+      background: #fff0f5;
+      box-shadow: 0 4px 12px rgba(249, 161, 194, 0.2);
+    }
+
+    #appointmentsContainer {
+      max-height: 500px;
+      overflow-y: auto;
+      border: 1px solid #f9a1c2;
+      padding: 1rem;
+      border-radius: 15px;
+      background: #fff8fb;
+    }
+
+    .appointment-card button {
+      margin-right: 8px;
+    }
+  </style>
 </head>
 <body>
 
-<div id="admin-panel" class="hidden">
-  <div class="panel-box">
-    <h2>🌸 Admin Panel</h2>
-    
-    <h3>📅 Управление на почивни дни</h3>
-    <div class="panel-actions">
-      <input type="date" id="dayOffInput">
-      <button id="addDayOff">➕ Добави</button>
+  <div id="admin-panel" class="hidden">
+    <div class="panel-box">
+      <h2>🌸 Admin Panel</h2>
+
+      <h3>💅 Резервации</h3>
+      <div id="appointmentsContainer"></div>
+
+      <button id="logout">🚪 Изход</button>
     </div>
-    <ul id="dayOffList"></ul>
-
-    <h3>💅 Резервации</h3>
-    <div id="appointmentsContainer"></div>
-
-    <button id="logout">🚪 Изход</button>
   </div>
-</div>
 
-<script src="admin.js" type="module"></script>
+  <script src="admin.js" type="module"></script>
 </body>
 </html>
