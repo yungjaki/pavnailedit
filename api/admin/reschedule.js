@@ -98,7 +98,7 @@ export default async function handler(req, res) {
         html: `<div style="font-family:Roboto,sans-serif;background:#fff0f4;padding:25px;border-radius:20px;">
                 <h2 style="color:#ff6ec4;text-align:center;">🕒 Вашият час е променен</h2>
                 <p>Здравейте, ${booking.name}!</p>
-                <p>Вашата резервация беше успешно преместена на дата <strong>${newDate}</strong> и час <strong>${newTime}</strong>.</p>
+                <p>Вашият час беше успешно преместена на дата <strong>${newDate}</strong> и час <strong>${newTime}</strong>.</p>
                 <p>Очакваме Ви! 💅🏻</p>
               </div>`,
       });
@@ -110,14 +110,14 @@ export default async function handler(req, res) {
       from: process.env.SENDGRID_FROM_EMAIL,
       subject: `Променена резервация: ${booking.name} — ${newDate} ${newTime}`,
       html: `<div style="font-family:Roboto,sans-serif;background:#fff0f4;padding:25px;border-radius:20px;">
-              <h2 style="color:#ff6ec4;">🕒 Резервация променена</h2>
+              <h2 style="color:#ff6ec4;">🕒 Час променен</h2>
               <p><strong>Име:</strong> ${booking.name}</p>
               <p><strong>Нова дата:</strong> ${newDate}</p>
               <p><strong>Нов час:</strong> ${newTime}</p>
             </div>`,
     });
 
-    return res.status(200).json({ message: "Резервацията е променена" });
+    return res.status(200).json({ message: "Часът е променен" });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Грешка при промяна на час" });
