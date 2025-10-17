@@ -25,13 +25,19 @@ export default async function handler(req, res) {
       return res.status(200).json({ message: "Почивен ден добавен", id: docRef.id });
     }
 
-    if (method === "DELETE") {
-      const { id } = req.body;
-      if (!id) return res.status(400).json({ error: "Missing id" });
+if (method === "DELETE") {
+  const { date } = req.body;
+  if (!date) return res.status(400).json({ error: "Missing date" });
 
-      await daysOffCollection.doc(id).delete();
-      return res.status(200).json({ message: "Почивен ден премахнат" });
-    }
+  const snapshot = await daysOffCollection.where('date', '==', date).get();
+
+  if (snapshot.empty) {
+    return res.status(404).json({ error: "Date not found" });
+  }
+
+  snapshot.forEach(doc => doc.ref.delete());
+  return res.status(200).json({ message: "Почивният ден е изтрит" });
+}
 
     res.setHeader("Allow", ["GET", "POST", "DELETE"]);
     return res.status(405).json({ error: `Method ${method} Not Allowed` });
