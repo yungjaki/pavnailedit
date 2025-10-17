@@ -81,26 +81,35 @@ function renderAppointments(appointments) {
 async function fetchDaysOff() {
   try {
     const res = await fetch('/api/admin/daysOff');
+
+    if (!res.ok) {
+      const text = await res.text();  // <- прочети plain текст (не JSON)
+      throw new Error(`Server returned error ${res.status}: ${text}`);
+    }
+
     const data = await res.json();
-    const days = data.days || [];
+    const days = data.daysOff || []; // поправяме тук, защото в API-то е "daysOff"
     dayOffList.innerHTML = '';
     days.forEach(d => {
       const li = document.createElement('li');
-      li.textContent = d;
+      li.textContent = d.date;
       const removeBtn = document.createElement('button');
       removeBtn.textContent = '❌';
       removeBtn.addEventListener('click', async () => {
         await fetch('/api/admin/daysOff', {
-          method:'DELETE',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ date: d })
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: d.id }) // поправка: изпращаме `id`, не `date`
         });
         fetchDaysOff();
       });
       li.appendChild(removeBtn);
       dayOffList.appendChild(li);
     });
-  } catch(e) { console.error('Error fetching days off:', e);}
+  } catch (e) {
+    console.error('Error fetching days off:', e);
+    dayOffList.innerHTML = '<p>⚠️ Грешка при зареждане на почивните дни.</p>';
+  }
 }
 
 // Add new day off
