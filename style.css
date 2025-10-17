@@ -708,6 +708,52 @@ about .redi {
   box-shadow: 0 4px 12px rgba(249,161,194,0.2);
 }
 
+.late-policy-section {
+  padding: 4rem 2rem;
+  scroll-snap-align: start;
+  text-align: center;
+}
+
+.late-policy-section h1 {
+  font-size: 2.8rem;
+  background: linear-gradient(45deg, #f8b7d1, #f9a1c2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2rem;
+}
+
+.policy-box {
+  background: #fff0f5;
+  padding: 2rem;
+  border-radius: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 10px 25px rgba(249, 161, 194, 0.15);
+  font-size: 1.1rem;
+  color: #333;
+  line-height: 1.6;
+}
+
+.policy-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  text-align: left;
+}
+
+.policy-box li {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.policy-box li::before {
+  content: "💅";
+  position: absolute;
+  left: 0;
+}
+
+
 /* Wall of Love */
 .wall-section {
   padding: 40px 20px;
@@ -1055,6 +1101,7 @@ about .redi {
     
 
 }
+
 
 
 
