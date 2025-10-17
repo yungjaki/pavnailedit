@@ -3,154 +3,178 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Panel - PavNailedIt</title>
+  <title>Admin Dashboard – PavNailedIt</title>
   <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(120deg, #f8e3e8, #f9d0d8);
       min-height: 100vh;
-      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    .panel-box {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 2.5rem;
+
+    .dashboard-wrapper {
+      width: 95%;
+      max-width: 1200px;
+      height: 90vh;
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 25px;
-      box-shadow: 0 15px 30px rgba(249, 161, 194, 0.2);
+      box-shadow: 0 15px 40px rgba(249, 161, 194, 0.3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
-    h2 {
-      font-size: 2.8rem;
+
+    .dashboard-header {
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.8);
+      border-bottom: 1px solid #f9a1c2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dashboard-header h1 {
+      font-size: 2.5rem;
       background: linear-gradient(45deg, #f8b7d1, #f9a1c2);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 1.5rem;
-      text-align: center;
+      margin: 0;
     }
-    h3 {
-      color: #ff6ec4;
-      margin: 1.5rem 0 1rem;
-      font-size: 1.8rem;
-    }
-    #appointmentsContainer {
-      max-height: 600px;
-      overflow-y: auto;
-      border: 1px solid #f9a1c2;
-      border-radius: 20px;
-      padding: 1rem;
-      background: #fff8fb;
-    }
-    .appointment-card {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem 1.5rem;
-      margin-bottom: 1rem;
-      border-radius: 15px;
-      background: #ffffff;
-      box-shadow: 0 8px 20px rgba(249, 161, 194, 0.2);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .appointment-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 25px rgba(249, 161, 194, 0.3);
-    }
-    .appointment-info {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-    .appointment-info strong {
-      font-size: 1.3rem;
-      color: #333;
-    }
-    .appointment-info span {
-      font-size: 1rem;
-      color: #555;
-    }
-    .appointment-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-    .appointment-actions button {
-      padding: 0.5rem 0.8rem;
-      border: none;
-      border-radius: 12px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-    .appointment-actions .cancel-btn {
-      background: #ff6e6e;
-      color: #fff;
-    }
-    .appointment-actions .reschedule-btn {
-      background: #f9a1c2;
-      color: #fff;
-    }
-    .filter-bar {
-      margin-bottom: 1.5rem;
+
+    .dashboard-header .controls {
       display: flex;
       gap: 1rem;
-      flex-wrap: wrap;
-      align-items: center;
     }
-    .filter-bar input, .filter-bar select {
+
+    .dashboard-header input,
+    .dashboard-header select,
+    .dashboard-header button {
       padding: 0.6rem 1rem;
       border: 1px solid #f9a1c2;
       border-radius: 12px;
+      background: white;
       font-size: 1rem;
       outline: none;
-      transition: border-color 0.2s ease;
+      transition: border-color 0.2s ease, background 0.2s ease;
     }
-    .filter-bar input:focus, .filter-bar select:focus {
+
+    .dashboard-header input:focus,
+    .dashboard-header select:focus {
       border-color: #ff6ec4;
     }
-    #logout {
-      margin-top: 2rem;
+
+    .dashboard-header button {
       background: linear-gradient(to right, #f8b7d1, #f9a1c2);
-      color: #fff;
-      padding: 0.8rem 1.5rem;
-      border-radius: 20px;
+      color: white;
       border: none;
+      cursor: pointer;
+    }
+
+    .dashboard-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      background: #fff8fb;
+    }
+
+    .appointments-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .appointment-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(249, 161, 194, 0.15);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .appointment-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(249, 161, 194, 0.25);
+    }
+
+    .appointment-info {
+      margin-bottom: 1rem;
+    }
+
+    .appointment-info strong {
+      font-size: 1.4rem;
+      color: #333;
+    }
+
+    .appointment-info span {
+      display: block;
+      margin-top: 0.3rem;
+      color: #555;
+    }
+
+    .appointment-actions {
+      display: flex;
+      gap: 0.7rem;
+      justify-content: flex-end;
+    }
+
+    .appointment-actions button {
+      padding: 0.6rem 1rem;
       font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .appointment-actions .cancel-btn {
+      background: #ff6e6e;
+      color: white;
+    }
+    .appointment-actions .reschedule-btn {
+      background: #f9a1c2;
+      color: #333;
+    }
+
+    .logout-btn {
+      margin-left: auto;
+      background: linear-gradient(to right, #f8b7d1, #f9a1c2);
+      color: white;
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 12px;
       cursor: pointer;
       transition: background 0.3s ease;
     }
-    #logout:hover {
-      background: linear-gradient(to right, #f9a1c2, #ff8ec4);
-    }
 
-    @media (max-width: 768px) {
-      .appointment-card {
-        grid-template-columns: 1fr;
-      }
-      .appointment-actions {
-        justify-content: flex-end;
-      }
+    .logout-btn:hover {
+      background: linear-gradient(to right, #f9a1c2, #ff8ec4);
     }
   </style>
 </head>
 <body>
-  <div id="admin-panel" class="hidden">
-    <div class="panel-box">
-      <h2>🌸 Admin Panel</h2>
-
-      <div class="filter-bar">
-        <input type="date" id="filterDate" placeholder="Филтрирай по дата" />
+  <div class="dashboard-wrapper">
+    <div class="dashboard-header">
+      <h1>Админ Панел</h1>
+      <div class="controls">
+        <input type="date" id="filterDate" />
         <select id="sortOrder">
-          <option value="asc">От най-стар до най-нов</option>
-          <option value="desc">От най-нов до най-стар</option>
+          <option value="asc">От старо към ново</option>
+          <option value="desc">От ново към старо</option>
         </select>
-        <button id="applyFilter">Приложи филтър</button>
+        <button id="applyFilter">Филтрирай</button>
+        <button id="logout" class="logout-btn">Изход</button>
       </div>
-
-      <h3>💅 Резервации</h3>
-      <div id="appointmentsContainer"></div>
-
-      <button id="logout">🚪 Изход</button>
+    </div>
+    <div class="dashboard-content">
+      <div id="appointmentsContainer" class="appointments-grid"></div>
     </div>
   </div>
 
