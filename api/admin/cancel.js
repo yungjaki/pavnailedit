@@ -59,7 +59,7 @@ export default async function handler(req, res) {
         html: `<div style="font-family:Roboto,sans-serif;background:#fff0f4;padding:25px;border-radius:20px;">
                 <h2 style="color:#ff6ec4;text-align:center;">⛔ Вашият час е отменен</h2>
                 <p>Здравейте, ${booking.name}!</p>
-                <p>Вашата резервация за дата <strong>${booking.date}</strong> и час <strong>${booking.time}</strong> беше успешно отменена.</p>
+                <p>Вашия час за дата <strong>${booking.date}</strong> и час <strong>${booking.time}</strong> беше отменен.</p>
                 <p>Надяваме се скоро да Ви видим отново! 💅🏻</p>
               </div>`,
       });
@@ -71,14 +71,14 @@ export default async function handler(req, res) {
       from: process.env.SENDGRID_FROM_EMAIL,
       subject: `Отказана резервация: ${booking.name} — ${booking.date} ${booking.time}`,
       html: `<div style="font-family:Roboto,sans-serif;background:#fff0f4;padding:25px;border-radius:20px;">
-              <h2 style="color:#ff6ec4;">⛔ Резервация отменена</h2>
+              <h2 style="color:#ff6ec4;">⛔ Час отменен</h2>
               <p><strong>Име:</strong> ${booking.name}</p>
               <p><strong>Дата:</strong> ${booking.date}</p>
               <p><strong>Час:</strong> ${booking.time}</p>
             </div>`,
     });
 
-    return res.status(200).json({ message: "Резервацията е отменена" });
+    return res.status(200).json({ message: "Час е отменен" });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Грешка при отказване" });
