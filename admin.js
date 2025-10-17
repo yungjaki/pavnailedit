@@ -98,13 +98,14 @@ applyFilterBtn.addEventListener('click', () => {
     filtered = filtered.filter(a => a.date === selDate);
   }
   const order = sortOrderSelect.value;
-  filtered.sort((a, b) => {
-    if (a.date < b.date) return order === 'asc' ? -1 : 1;
-    if (a.date > b.date) return order === 'asc' ? 1 : -1;
-    if (a.time < b.time) return order === 'asc' ? -1 : 1;
-    if (a.time > b.time) return order === 'asc' ? 1 : -1;
-    return 0;
-  });
+filtered.sort((a, b) => {
+  const dateA = new Date(`${a.date}T${a.time}`);
+  const dateB = new Date(`${b.date}T${b.time}`);
+  
+  if (dateA < dateB) return order === 'asc' ? -1 : 1;
+  if (dateA > dateB) return order === 'asc' ? 1 : -1;
+  return 0;
+});
   renderAppointments(filtered);
 });
 
