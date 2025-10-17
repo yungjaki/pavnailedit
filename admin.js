@@ -51,17 +51,23 @@ function renderAppointments(arr) {
           body: JSON.stringify({ id: app.id })
         });
         const resp = await res.json();
-        if (!res.ok) alert(resp.error || 'Грешка при отказване.');
-        await fetchAppointments();
+        if (!res.ok) {
+          alert(resp.error || 'Грешка при отказване.');
+        } else {
+          alert('Часът е успешно отменен.');
+          await fetchAppointments();
+        }
       } catch (e) {
         console.error(e);
+        alert('Грешка при отказване.');
       }
     });
 
     card.querySelector('.reschedule-btn').addEventListener('click', async () => {
       const newDate = prompt('Нова дата (YYYY-MM-DD):', app.date);
+      if (!newDate) return;
       const newTime = prompt('Нов час (HH:MM):', app.time);
-      if (!newDate || !newTime) return;
+      if (!newTime) return;
       try {
         const res = await fetch('/api/admin/reschedule', {
           method: 'POST',
@@ -69,10 +75,15 @@ function renderAppointments(arr) {
           body: JSON.stringify({ id: app.id, newDate, newTime })
         });
         const resp = await res.json();
-        if (!res.ok) alert(resp.error || 'Грешка при промяна на час.');
-        await fetchAppointments();
+        if (!res.ok) {
+          alert(resp.error || 'Грешка при промяна на час.');
+        } else {
+          alert('Часът е успешно променен.');
+          await fetchAppointments();
+        }
       } catch (e) {
         console.error(e);
+        alert('Грешка при промяна на час.');
       }
     });
 
