@@ -2,7 +2,13 @@ const adminPanel = document.getElementById('admin-panel');
 const logoutBtn = document.getElementById('logout');
 const appointmentsContainer = document.getElementById('appointmentsContainer');
 
+const filterDateInput = document.getElementById('filterDate');
+const sortOrderSelect = document.getElementById('sortOrder');
+const applyFilterBtn = document.getElementById('applyFilter');
+
 adminPanel.classList.remove('hidden');
+
+let allAppointments = []; // ще държим всички
 
 // ----------------------
 // Load Appointments
@@ -12,6 +18,7 @@ async function fetchAppointments() {
     const res = await fetch('/api/book');
     const data = await res.json();
     const appointments = data.bookings || [];
+    allAppointments = appointments;
     renderAppointments(appointments);
   } catch (err) {
     console.error('Error fetching appointments:', err);
@@ -19,21 +26,26 @@ async function fetchAppointments() {
   }
 }
 
-function renderAppointments(appointments) {
+function renderAppointments(arr) {
   appointmentsContainer.innerHTML = '';
-  if (!appointments.length) {
+  if (!arr.length) {
     appointmentsContainer.innerHTML = '<p>Няма резервации.</p>';
     return;
   }
-
-  appointments.forEach(app => {
+  arr.forEach(app => {
     const div = document.createElement('div');
     div.className = 'appointment-card';
+
     div.innerHTML = `
-      <strong>${app.name}</strong> - ${app.clientEmail || ''}<br>
-      📅 ${app.date} ⏰ ${app.time}<br>
-      <button class="cancel-btn">Откажи</button>
-      <button class="reschedule-btn">Промени час</button>
+      <div class="appointment-info">
+        <strong>${app.name}</strong>
+        <span>${app.clientEmail || ''}</span>
+        <span>📅 ${app.date} ⏰ ${app.time}</span>
+      </div>
+      <div class="appointment-actions">
+        <button class="cancel-btn">Откажи</button>
+        <button class="reschedule-btn">Промени</button>
+      </div>
     `;
 
     // Cancel
@@ -71,6 +83,30 @@ function renderAppointments(appointments) {
     appointmentsContainer.appendChild(div);
   });
 }
+
+// ----------------------
+// Филтриране & Сортиране
+// ----------------------
+applyFilterBtn.addEventListener('click', () => {
+  let filtered = [...allAppointments];
+
+  const selectedDate = filterDateInput.value;
+  if (selectedDate) {
+    filtered = filtered.filter(a => a.date === selectedDate);
+  }
+
+  const order = sortOrderSelect.value;
+  filtered.sort((a, b) => {
+    if (a.date < b.date) return order === 'asc' ? -1 : 1;
+    if (a.date > b.date) return order === 'asc' ? 1 : -1;
+    // ако са еднакви дати – сортирай по час
+    if (a.time < b.time) return order === 'asc' ? -1 : 1;
+    if (a.time > b.time) return order === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  renderAppointments(filtered);
+});
 
 // ----------------------
 // Logout
