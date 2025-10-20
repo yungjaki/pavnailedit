@@ -20,7 +20,7 @@ h1 {
 #calendar {
   max-width: 900px;
   margin: 0 auto;
-  background: #ffd3e8; /* по-тъмен розов фон за contrast */
+  background: #ffd3e8;
   padding: 1rem;
   border-radius: 20px;
   box-shadow: 0 10px 25px rgba(255,110,196,0.3);
@@ -38,7 +38,7 @@ h1 {
   cursor: pointer;
 }
 .fc-day-today {
-  background-color: #ff9ecd !important; /* днешен ден по-тъмен розов */
+  background-color: #ff9ecd !important;
   border-radius: 15px;
 }
 .tooltip {
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     events: bookings.map(b => ({
       title: `${b.time} — ${b.name}`,
       start: formatDateISO(b.date, b.time),
-      extendedProps: { services: b.services, totalPrice: parseFloat(b.totalPrice)||0, phone: b.phone }
+      extendedProps: { services: b.services, totalPrice: parseFloat(b.totalPrice) || 0, phone: b.phone }
     })),
     eventMouseEnter(info) {
       const { services, totalPrice, phone } = info.event.extendedProps;
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Премахваме стари дневни суми
       document.querySelectorAll('.day-total').forEach(el => el.remove());
 
-      // Дневни суми директно от събитията в календара
+      // Дневни суми за текущата видима дата
       document.querySelectorAll('.fc-daygrid-day').forEach(dayCell => {
         const date = dayCell.getAttribute('data-date');
         const dayEvents = calendar.getEvents().filter(ev => ev.startStr.startsWith(date));
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       });
 
-      // Месечна сума
+      // Месечна сума за текущия месец
       const monthStart = info.start;
       const monthEnd = info.end;
       const monthEvents = calendar.getEvents().filter(ev => ev.start >= monthStart && ev.start < monthEnd);
