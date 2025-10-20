@@ -117,15 +117,6 @@ function formatDateISO(dateStr, timeStr) {
 document.addEventListener('DOMContentLoaded', async () => {
   const bookings = await loadBookings();
 
-  function getMonthTotal(year, month) {
-    return bookings
-      .filter(b => {
-        const [d,m,y] = b.date.split('.');
-        return parseInt(m) === month && parseInt(y) === year;
-      })
-      .reduce((sum, b) => sum + (parseFloat(b.totalPrice)||0), 0);
-  }
-
   const calendarEl = document.getElementById('calendar');
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
@@ -134,7 +125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     events: bookings.map(b => ({
       title: `${b.time} — ${b.name}`,
       start: formatDateISO(b.date, b.time),
-      extendedProps: { services: b.services, totalPrice: b.totalPrice, phone: b.phone }
+      extendedProps: { services: b.services, totalPrice: parseFloat(b.totalPrice)||0, phone: b.phone }
     })),
     eventMouseEnter(info) {
       const { services, totalPrice, phone } = info.event.extendedProps;
@@ -143,7 +134,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <br>📞 Телефон: ${phone || '—'}
         <br>💅 Услуги:
         <ul>${services.map(s => `<li>${s}</li>`).join('')}</ul>
-        <p><strong>💰 Общо: ${parseFloat(totalPrice).toFixed(2)} лв</strong></p>
+        <p><strong>💰 Общо: ${totalPrice.toFixed(2)} лв</strong></p>
       `;
       tooltip.style.display = 'block';
       const pageWidth = document.documentElement.clientWidth;
@@ -158,17 +149,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       tooltip.style.display = 'none';
     },
     datesSet(info) {
-      // Премахваме всички стари дневни суми
+      // Премахваме стари дневни суми
       document.querySelectorAll('.day-total').forEach(el => el.remove());
 
-      // Дневни суми
+      // Дневни суми директно от събитията в календара
       document.querySelectorAll('.fc-daygrid-day').forEach(dayCell => {
         const date = dayCell.getAttribute('data-date');
-        const [y,m,d] = date.split('-');
-        const key = `${d}.${m}.${y}`;
-        const dayTotal = bookings
-          .filter(b => b.date === key)
-          .reduce((sum, b) => sum + (parseFloat(b.totalPrice)||0), 0);
+        const dayEvents = calendar.getEvents().filter(ev => ev.startStr.startsWith(date));
+        const dayTotal = dayEvents.reduce((sum, ev) => sum + (ev.extendedProps.totalPrice || 0), 0);
         if(dayTotal > 0){
           const label = document.createElement('div');
           label.className = 'day-total';
@@ -178,7 +166,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
 
       // Месечна сума
-      const monthTotal = getMonthTotal(info.start.getFullYear(), info.start.getMonth() + 1);
+      const monthStart = info.start;
+      const monthEnd = info.end;
+      const monthEvents = calendar.getEvents().filter(ev => ev.start >= monthStart && ev.start < monthEnd);
+      const monthTotal = monthEvents.reduce((sum, ev) => sum + (ev.extendedProps.totalPrice || 0), 0);
+
       const titleEl = document.querySelector('.fc-toolbar-title');
       if(titleEl){
         if(!titleEl.querySelector('.month-total')){
