@@ -20,7 +20,7 @@ h1 {
 #calendar {
   max-width: 900px;
   margin: 0 auto;
-  background: #ffd3e8; /* по-тъмен розов фон за contrast */
+  background: #ffd3e8;
   padding: 1rem;
   border-radius: 20px;
   box-shadow: 0 10px 25px rgba(255,110,196,0.3);
@@ -38,7 +38,7 @@ h1 {
   cursor: pointer;
 }
 .fc-day-today {
-  background-color: #ff9ecd !important; /* днешен ден по-тъмен розов */
+  background-color: #ff9ecd !important;
   border-radius: 15px;
 }
 .tooltip {
@@ -121,11 +121,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     let total = 0;
     bookings.forEach(b => {
       const [d,m,y] = b.date.split('.');
-      if (parseInt(m) === month && parseInt(y) === year) {
-        total += parseFloat(b.totalPrice) || 0;
+      if (Number(m) === month && Number(y) === year) {
+        total += Number(b.totalPrice) || 0;
       }
     });
-    return total;
+    return total.toFixed(2);
   }
 
   const calendarEl = document.getElementById('calendar');
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <br>📞 Телефон: ${phone || '—'}
         <br>💅 Услуги:
         <ul>${services.map(s => `<li>${s}</li>`).join('')}</ul>
-        <p><strong>💰 Общо: ${totalPrice} лв</strong></p>
+        <p><strong>💰 Общо: ${Number(totalPrice).toFixed(2)} лв</strong></p>
       `;
       tooltip.style.display = 'block';
       const pageWidth = document.documentElement.clientWidth;
@@ -156,25 +156,25 @@ document.addEventListener('DOMContentLoaded', async () => {
       tooltip.style.left = left + 'px';
       tooltip.style.top = (info.jsEvent.pageY + 10) + 'px';
     },
-    eventMouseLeave() {
-      tooltip.style.display = 'none';
-    },
+    eventMouseLeave() { tooltip.style.display = 'none'; },
     datesSet(info) {
+      // дневни суми
       document.querySelectorAll('.fc-daygrid-day').forEach(dayCell => {
         const date = dayCell.getAttribute('data-date');
         const [y,m,d] = date.split('-');
         const key = `${d}.${m}.${y}`;
         const dayTotal = bookings
           .filter(b => b.date === key)
-          .reduce((sum, b) => sum + (parseFloat(b.totalPrice)||0), 0);
-        if(dayTotal>0){
+          .reduce((sum, b) => sum + (Number(b.totalPrice) || 0), 0);
+        if(dayTotal > 0){
           const label = document.createElement('div');
           label.className = 'day-total';
-          label.textContent = `💰 ${dayTotal} лв`;
+          label.textContent = `💰 ${dayTotal.toFixed(2)} лв`;
           dayCell.querySelector('.fc-daygrid-day-top')?.appendChild(label);
         }
       });
 
+      // месечна сума
       const monthTotal = getMonthTotal(info.start.getFullYear(), info.start.getMonth() + 1);
       const titleEl = document.querySelector('.fc-toolbar-title');
       if(titleEl){
