@@ -49,18 +49,22 @@ h1 {
   cursor: pointer;
 }
 .fc-daygrid-day-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   position: relative;
 }
 .day-total {
-  font-size: 0.7rem;
-  background: #fff3fa;
+  font-size: 0.8rem;
+  background: #ffeaf5;
   border: 1px solid #ffb3d6;
   color: #ff3f9d;
-  border-radius: 6px;
-  padding: 2px 4px;
-  position: absolute;
-  top: 4px;
-  right: 4px;
+  border-radius: 8px;
+  padding: 2px 6px;
+  margin-top: 2px;
+  display: inline-block;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(255,110,196,0.2);
 }
 .tooltip {
   position: absolute;
@@ -85,6 +89,10 @@ h1 {
   .tooltip {
     font-size: 0.8rem;
     width: 180px;
+  }
+  .day-total {
+    font-size: 0.7rem;
+    padding: 2px 4px;
   }
 }
 </style>
@@ -141,9 +149,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     locale: 'bg',
     height: 'auto',
     events,
-    eventDidMount(info) {
-      // Нищо специално тук
-    },
     eventMouseEnter(info) {
       const { services, totalPrice, phone } = info.event.extendedProps;
       tooltip.innerHTML = `
@@ -188,7 +193,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           const label = document.createElement('div');
           label.className = 'day-total';
           label.textContent = `💰 ${dayTotals[key]} лв`;
-          dayCell.querySelector('.fc-daygrid-day-top').appendChild(label);
+          const topSection = dayCell.querySelector('.fc-daygrid-day-top');
+          if (topSection) topSection.appendChild(label);
         }
       });
     }
