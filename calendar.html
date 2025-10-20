@@ -6,35 +6,61 @@
 <title>Календар - PavNailedIt</title>
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
 <style>
 body {
-  font-family: 'Roboto', sans-serif;
-  background-color: #fff0f4;
-  padding: 2rem;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #ffe0ef, #fff5f8);
+  min-height: 100vh;
+  padding: 1.5rem;
+  color: #2c2c2c;
 }
 h1 {
   text-align: center;
   color: #ff6ec4;
   margin-bottom: 1.5rem;
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(255,110,196,0.2);
 }
 #calendar {
   max-width: 900px;
   margin: 0 auto;
   background: white;
   padding: 1rem;
-  border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(255,110,196,0.3);
+  border-radius: 25px;
+  box-shadow: 0 10px 25px rgba(255,110,196,0.2);
+  overflow: hidden;
 }
 .fc-event {
-  background-color: #f9a1c2 !important;
+  background: linear-gradient(135deg, #ff9ecd, #ff6ec4) !important;
   border: none !important;
   color: #fff !important;
-  border-radius: 10px !important;
-  padding: 2px 5px !important;
+  border-radius: 12px !important;
+  padding: 3px 6px !important;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 5px rgba(255,110,196,0.3);
+  transition: transform 0.2s ease;
+}
+.fc-event:hover {
+  transform: scale(1.05);
 }
 .fc-daygrid-day:hover {
-  background-color: #ffe6f0 !important;
+  background-color: #fff0f6 !important;
   cursor: pointer;
+}
+.fc-daygrid-day-top {
+  position: relative;
+}
+.day-total {
+  font-size: 0.7rem;
+  background: #fff3fa;
+  border: 1px solid #ffb3d6;
+  color: #ff3f9d;
+  border-radius: 6px;
+  padding: 2px 4px;
+  position: absolute;
+  top: 4px;
+  right: 4px;
 }
 .tooltip {
   position: absolute;
@@ -51,6 +77,15 @@ h1 {
 }
 .tooltip strong {
   color: #ff6ec4;
+}
+@media (max-width: 768px) {
+  #calendar {
+    padding: 0.5rem;
+  }
+  .tooltip {
+    font-size: 0.8rem;
+    width: 180px;
+  }
 }
 </style>
 </head>
@@ -75,12 +110,20 @@ async function loadBookings() {
 }
 
 function formatDateISO(dateStr, timeStr) {
-  const [d,m,y] = dateStr.split('.');
+  const [d, m, y] = dateStr.split('.');
   return `${y}-${m}-${d}T${timeStr}:00`;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
   const bookings = await loadBookings();
+
+  // 🎯 Групиране на суми по дата
+  const dayTotals = {};
+  bookings.forEach(b => {
+    const key = b.date;
+    const price = parseFloat(b.totalPrice) || 0;
+    dayTotals[key] = (dayTotals[key] || 0) + price;
+  });
 
   const events = bookings.map(b => ({
     title: `${b.time} — ${b.name}`,
@@ -98,44 +141,57 @@ document.addEventListener('DOMContentLoaded', async () => {
     locale: 'bg',
     height: 'auto',
     events,
-eventMouseEnter(info) {
-  const { name, services, totalPrice, phone } = info.event.extendedProps;
-  tooltip.innerHTML = `
-    <strong>${info.event.title}</strong><br>
-    <br>📞 Телефон: ${phone || '—'}
-    <br>💅 Услуги:
-    <ul>${services.map(s => `<li>${s}</li>`).join('')}</ul>
-    <p><strong>💰 Общо: ${totalPrice} лв</strong></p>
-  `;
-  tooltip.style.display = 'block';
+    eventDidMount(info) {
+      // Нищо специално тук
+    },
+    eventMouseEnter(info) {
+      const { services, totalPrice, phone } = info.event.extendedProps;
+      tooltip.innerHTML = `
+        <strong>${info.event.title}</strong><br>
+        <br>📞 Телефон: ${phone || '—'}
+        <br>💅 Услуги:
+        <ul>${services.map(s => `<li>${s}</li>`).join('')}</ul>
+        <p><strong>💰 Общо: ${totalPrice} лв</strong></p>
+      `;
+      tooltip.style.display = 'block';
 
-  // 🧠 Умно позициониране:
-  const tooltipWidth = tooltip.offsetWidth;
-  const tooltipHeight = tooltip.offsetHeight;
-  const pageWidth = window.innerWidth;
-  const pageHeight = window.innerHeight;
-  const mouseX = info.jsEvent.pageX;
-  const mouseY = info.jsEvent.pageY;
+      const tooltipWidth = tooltip.offsetWidth;
+      const tooltipHeight = tooltip.offsetHeight;
+      const pageWidth = window.innerWidth;
+      const pageHeight = window.innerHeight;
+      const mouseX = info.jsEvent.pageX;
+      const mouseY = info.jsEvent.pageY;
 
-  let left = mouseX + 10;
-  let top = mouseY + 10;
+      let left = mouseX + 10;
+      let top = mouseY + 10;
 
-  // Ако tooltip-ът излиза вдясно → премести го вляво
-  if (mouseX + tooltipWidth + 20 > pageWidth) {
-    left = mouseX - tooltipWidth - 10;
-  }
+      if (mouseX + tooltipWidth + 20 > pageWidth) {
+        left = mouseX - tooltipWidth - 10;
+      }
+      if (mouseY + tooltipHeight + 20 > pageHeight) {
+        top = mouseY - tooltipHeight - 10;
+      }
 
-  // Ако tooltip-ът излиза под екрана → повдигни го нагоре
-  if (mouseY + tooltipHeight + 20 > pageHeight) {
-    top = mouseY - tooltipHeight - 10;
-  }
-
-  tooltip.style.left = left + 'px';
-  tooltip.style.top = top + 'px';
-},
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
+    },
     eventMouseLeave() {
       tooltip.style.display = 'none';
     },
+    datesSet() {
+      // След като календара се рендерира, добавяме дневните суми 💰
+      document.querySelectorAll('.fc-daygrid-day').forEach(dayCell => {
+        const date = dayCell.getAttribute('data-date');
+        const [y, m, d] = date.split('-');
+        const key = `${d}.${m}.${y}`;
+        if (dayTotals[key]) {
+          const label = document.createElement('div');
+          label.className = 'day-total';
+          label.textContent = `💰 ${dayTotals[key]} лв`;
+          dayCell.querySelector('.fc-daygrid-day-top').appendChild(label);
+        }
+      });
+    }
   });
 
   calendar.render();
