@@ -125,7 +125,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     events: bookings.map(b => ({
       title: `${b.time} — ${b.name}`,
       start: formatDateISO(b.date, b.time),
-      extendedProps: { services: b.services, totalPrice: parseFloat(b.totalPrice) || 0, phone: b.phone }
+      extendedProps: { 
+        services: b.services, 
+        totalPrice: parseFloat(b.totalPrice) || 0, 
+        phone: b.phone 
+      }
     })),
     eventMouseEnter(info) {
       const { services, totalPrice, phone } = info.event.extendedProps;
@@ -149,15 +153,28 @@ document.addEventListener('DOMContentLoaded', async () => {
       tooltip.style.display = 'none';
     },
     datesSet(info) {
-      // Премахваме стари дневни суми
       document.querySelectorAll('.day-total').forEach(el => el.remove());
 
-      // Дневни суми за текущата видима дата
+      const currentMonth = info.start.getMonth(); // 0-based
+      const currentYear = info.start.getFullYear();
+
       document.querySelectorAll('.fc-daygrid-day').forEach(dayCell => {
-        const date = dayCell.getAttribute('data-date');
-        const dayEvents = calendar.getEvents().filter(ev => ev.startStr.startsWith(date));
+        const date = new Date(dayCell.getAttribute('data-date'));
+        const dayMonth = date.getMonth();
+        const dayYear = date.getFullYear();
+
+        // ⚠️ Показваме сума само за текущия месец
+        if (dayMonth !== currentMonth || dayYear !== currentYear) return;
+
+        const dayEvents = calendar.getEvents().filter(ev => {
+          const evDate = ev.start;
+          return evDate.getFullYear() === dayYear && 
+                 evDate.getMonth() === dayMonth && 
+                 evDate.getDate() === date.getDate();
+        });
+
         const dayTotal = dayEvents.reduce((sum, ev) => sum + (ev.extendedProps.totalPrice || 0), 0);
-        if(dayTotal > 0){
+        if (dayTotal > 0) {
           const label = document.createElement('div');
           label.className = 'day-total';
           label.textContent = `💰 ${dayTotal.toFixed(2)} лв`;
@@ -165,15 +182,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       });
 
-      // Месечна сума за текущия месец
-      const monthStart = info.start;
-      const monthEnd = info.end;
-      const monthEvents = calendar.getEvents().filter(ev => ev.start >= monthStart && ev.start < monthEnd);
+      // 🔹 Месечна сума само за текущия месец
+      const monthEvents = calendar.getEvents().filter(ev => {
+        const d = ev.start;
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      });
       const monthTotal = monthEvents.reduce((sum, ev) => sum + (ev.extendedProps.totalPrice || 0), 0);
 
       const titleEl = document.querySelector('.fc-toolbar-title');
-      if(titleEl){
-        if(!titleEl.querySelector('.month-total')){
+      if (titleEl) {
+        if (!titleEl.querySelector('.month-total')) {
           const totalEl = document.createElement('div');
           totalEl.className = 'month-total';
           totalEl.textContent = `💰 ${monthTotal.toFixed(2)} лв за месеца`;
