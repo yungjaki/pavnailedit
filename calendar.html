@@ -67,22 +67,6 @@ h1 {
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(255,110,196,0.2);
 }
-#calendar .fc-toolbar-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  color: #ff3f9d;
-  font-weight: 600;
-  font-size: 1.3rem;
-}
-.month-total {
-  font-size: 0.9rem;
-  color: #fff;
-  background: #ff6ec4;
-  padding: 5px 10px;
-  border-radius: 12px;
-}
 @media(max-width:768px){
   .tooltip { width: 160px; font-size: 0.8rem; }
   .day-total { font-size: 0.7rem; padding: 1px 4px; }
@@ -152,24 +136,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     eventMouseLeave() {
       tooltip.style.display = 'none';
     },
-    datesSet(info) {
+    datesSet() {
       document.querySelectorAll('.day-total').forEach(el => el.remove());
-
-      const currentMonth = info.start.getMonth(); // 0-based
-      const currentYear = info.start.getFullYear();
+      const events = calendar.getEvents();
 
       document.querySelectorAll('.fc-daygrid-day').forEach(dayCell => {
         const date = new Date(dayCell.getAttribute('data-date'));
-        const dayMonth = date.getMonth();
-        const dayYear = date.getFullYear();
-
-        // ⚠️ Показваме сума само за текущия месец
-        if (dayMonth !== currentMonth || dayYear !== currentYear) return;
-
-        const dayEvents = calendar.getEvents().filter(ev => {
+        const dayEvents = events.filter(ev => {
           const evDate = ev.start;
-          return evDate.getFullYear() === dayYear && 
-                 evDate.getMonth() === dayMonth && 
+          return evDate.getFullYear() === date.getFullYear() &&
+                 evDate.getMonth() === date.getMonth() &&
                  evDate.getDate() === date.getDate();
         });
 
@@ -181,25 +157,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           dayCell.querySelector('.fc-daygrid-day-top')?.appendChild(label);
         }
       });
-
-      // 🔹 Месечна сума само за текущия месец
-      const monthEvents = calendar.getEvents().filter(ev => {
-        const d = ev.start;
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-      });
-      const monthTotal = monthEvents.reduce((sum, ev) => sum + (ev.extendedProps.totalPrice || 0), 0);
-
-      const titleEl = document.querySelector('.fc-toolbar-title');
-      if (titleEl) {
-        if (!titleEl.querySelector('.month-total')) {
-          const totalEl = document.createElement('div');
-          totalEl.className = 'month-total';
-          totalEl.textContent = `💰 ${monthTotal.toFixed(2)} лв за месеца`;
-          titleEl.appendChild(totalEl);
-        } else {
-          titleEl.querySelector('.month-total').textContent = `💰 ${monthTotal.toFixed(2)} лв за месеца`;
-        }
-      }
     }
   });
 
