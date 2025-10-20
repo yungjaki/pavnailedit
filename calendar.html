@@ -98,19 +98,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     locale: 'bg',
     height: 'auto',
     events,
-    eventMouseEnter(info) {
-      const { name, services, totalPrice, phone } = info.event.extendedProps;
-      tooltip.innerHTML = `
-        <strong>${info.event.title}</strong><br>
-        <br>📞 Телефон: ${phone || '—'}
-        <br>💅 Услуги:
-        <ul>${services.map(s => `<li>${s}</li>`).join('')}</ul>
-        <p><strong>💰 Общо: ${totalPrice} лв</strong></p>
-      `;
-      tooltip.style.display = 'block';
-      tooltip.style.left = (info.jsEvent.pageX + 10) + 'px';
-      tooltip.style.top = (info.jsEvent.pageY + 10) + 'px';
-    },
+eventMouseEnter(info) {
+  const { name, services, totalPrice, phone } = info.event.extendedProps;
+  tooltip.innerHTML = `
+    <strong>${info.event.title}</strong><br>
+    <br>📞 Телефон: ${phone || '—'}
+    <br>💅 Услуги:
+    <ul>${services.map(s => `<li>${s}</li>`).join('')}</ul>
+    <p><strong>💰 Общо: ${totalPrice} лв</strong></p>
+  `;
+  tooltip.style.display = 'block';
+
+  // 🧠 Умно позициониране:
+  const tooltipWidth = tooltip.offsetWidth;
+  const tooltipHeight = tooltip.offsetHeight;
+  const pageWidth = window.innerWidth;
+  const pageHeight = window.innerHeight;
+  const mouseX = info.jsEvent.pageX;
+  const mouseY = info.jsEvent.pageY;
+
+  let left = mouseX + 10;
+  let top = mouseY + 10;
+
+  // Ако tooltip-ът излиза вдясно → премести го вляво
+  if (mouseX + tooltipWidth + 20 > pageWidth) {
+    left = mouseX - tooltipWidth - 10;
+  }
+
+  // Ако tooltip-ът излиза под екрана → повдигни го нагоре
+  if (mouseY + tooltipHeight + 20 > pageHeight) {
+    top = mouseY - tooltipHeight - 10;
+  }
+
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
+},
     eventMouseLeave() {
       tooltip.style.display = 'none';
     },
