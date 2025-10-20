@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Календар - PavNailedIt</title>
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<style>
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #fff0f4;
+  padding: 2rem;
+}
+h1 {
+  text-align: center;
+  color: #ff6ec4;
+  margin-bottom: 1.5rem;
+}
+#calendar {
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  padding: 1rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(255,110,196,0.3);
+}
+.fc-event {
+  background-color: #f9a1c2 !important;
+  border: none !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  padding: 2px 5px !important;
+}
+.fc-daygrid-day:hover {
+  background-color: #ffe6f0 !important;
+  cursor: pointer;
+}
+.tooltip {
+  position: absolute;
+  background: #fff;
+  color: #2c2c2c;
+  border: 1px solid #f9a1c2;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  display: none;
+  z-index: 1000;
+  width: 220px;
+}
+.tooltip strong {
+  color: #ff6ec4;
+}
+</style>
+</head>
+<body>
+
+<h1>💅🏻 Календар с резервации</h1>
+<div id="calendar"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+let tooltip = document.getElementById('tooltip');
+
+async function loadBookings() {
+  try {
+    const res = await fetch('/api/book');
+    const data = await res.json();
+    return data.bookings || [];
+  } catch (err) {
+    console.error('❌ Грешка при зареждане:', err);
+    return [];
+  }
+}
+
+function formatDateISO(dateStr, timeStr) {
+  const [d,m,y] = dateStr.split('.');
+  return `${y}-${m}-${d}T${timeStr}:00`;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const bookings = await loadBookings();
+
+  const events = bookings.map(b => ({
+    title: `${b.time} — ${b.name}`,
+    start: formatDateISO(b.date, b.time),
+    extendedProps: {
+      services: b.services,
+      totalPrice: b.totalPrice,
+      phone: b.phone
+    }
+  }));
+
+  const calendarEl = document.getElementById('calendar');
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    locale: 'bg',
+    height: 'auto',
+    events,
+    eventMouseEnter(info) {
+      const { name, services, totalPrice, phone } = info.event.extendedProps;
+      tooltip.innerHTML = `
+        <strong>${info.event.title}</strong><br>
+        <br>📞 Телефон: ${phone || '—'}
+        <br>💅 Услуги:
+        <ul>${services.map(s => `<li>${s}</li>`).join('')}</ul>
+        <p><strong>💰 Общо: ${totalPrice} лв</strong></p>
+      `;
+      tooltip.style.display = 'block';
+      tooltip.style.left = (info.jsEvent.pageX + 10) + 'px';
+      tooltip.style.top = (info.jsEvent.pageY + 10) + 'px';
+    },
+    eventMouseLeave() {
+      tooltip.style.display = 'none';
+    },
+    eventClick(info) {
+      const { name, services, totalPrice, phone } = info.event.extendedProps;
+      alert(`📅 ${info.event.title}\n\n📞 Телефон: ${phone}\n💅 Услуги:\n${services.join('\n')}\n💰 Общо: ${totalPrice} лв`);
+    }
+  });
+
+  calendar.render();
+});
+</script>
+
+</body>
+</html>
