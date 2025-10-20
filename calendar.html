@@ -10,12 +10,13 @@
 body {
   font-family: 'Roboto', sans-serif;
   background-color: #fff0f4;
-  padding: 2rem;
+  padding: 1.5rem;
 }
 h1 {
   text-align: center;
   color: #ff6ec4;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.6rem;
 }
 #calendar {
   max-width: 900px;
@@ -31,15 +32,26 @@ h1 {
   color: #fff !important;
   border-radius: 10px !important;
   padding: 2px 5px !important;
-  font-size: 0.9rem;
-}
-.fc-daygrid-day:hover {
-  background-color: #ffe6f0 !important;
-  cursor: pointer;
+  font-size: 0.85rem !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .fc-day-today {
   background-color: #ff9ecd !important;
   border-radius: 15px;
+}
+.day-total {
+  font-size: 0.8rem;
+  background: #ffe4f0;
+  border: 1px solid #ffb3d6;
+  color: #ff3f9d;
+  border-radius: 8px;
+  padding: 2px 6px;
+  margin-top: 2px;
+  display: inline-block;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(255,110,196,0.2);
 }
 .tooltip {
   position: absolute;
@@ -55,21 +67,70 @@ h1 {
   width: 220px;
 }
 .tooltip strong { color: #ff6ec4; }
-.day-total {
-  font-size: 0.8rem;
-  background: #ffe4f0;
-  border: 1px solid #ffb3d6;
-  color: #ff3f9d;
-  border-radius: 8px;
-  padding: 2px 6px;
-  margin-top: 2px;
-  display: inline-block;
-  font-weight: 600;
-  box-shadow: 0 2px 6px rgba(255,110,196,0.2);
+
+/* 📱 Мобилен изглед */
+@media (max-width: 768px) {
+  h1 { font-size: 1.4rem; }
+  #calendar {
+    padding: 0.5rem;
+    border-radius: 15px;
+  }
+  .fc {
+    font-size: 0.8rem;
+  }
+  .fc-toolbar-title {
+    font-size: 1rem !important;
+  }
+  .fc-daygrid-day-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .day-total {
+    font-size: 0.7rem;
+    margin-top: 3px;
+    padding: 2px 5px;
+  }
+  /* Изглежда по-"card" стил */
+  .fc-daygrid-day-frame {
+    border-radius: 10px;
+    background: #ffe8f3;
+    margin: 2px;
+  }
 }
-@media(max-width:768px){
-  .tooltip { width: 160px; font-size: 0.8rem; }
-  .day-total { font-size: 0.7rem; padding: 1px 4px; }
+
+/* 💅 Popup за мобилни */
+#mobileModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+#mobileModal .content {
+  background: #fff;
+  border-radius: 15px;
+  padding: 20px;
+  width: 80%;
+  max-width: 350px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  text-align: left;
+}
+#mobileModal h3 {
+  color: #ff6ec4;
+  margin-bottom: 10px;
+}
+#mobileModal button {
+  background: #ff6ec4;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 16px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-weight: 500;
 }
 </style>
 </head>
@@ -79,8 +140,22 @@ h1 {
 <div id="calendar"></div>
 <div class="tooltip" id="tooltip"></div>
 
+<!-- Popup за мобилни -->
+<div id="mobileModal">
+  <div class="content">
+    <h3>📅 Детайли за час</h3>
+    <div id="modalBody"></div>
+    <button id="closeModal">Затвори</button>
+  </div>
+</div>
+
 <script>
 let tooltip = document.getElementById('tooltip');
+const modal = document.getElementById('mobileModal');
+const modalBody = document.getElementById('modalBody');
+const closeModal = document.getElementById('closeModal');
+
+closeModal.onclick = () => modal.style.display = 'none';
 
 async function loadBookings() {
   try {
@@ -103,19 +178,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const calendarEl = document.getElementById('calendar');
   const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
+    initialView: window.innerWidth < 768 ? 'dayGridWeek' : 'dayGridMonth',
     locale: 'bg',
     height: 'auto',
     events: bookings.map(b => ({
       title: `${b.time} — ${b.name}`,
       start: formatDateISO(b.date, b.time),
-      extendedProps: { 
-        services: b.services, 
-        totalPrice: parseFloat(b.totalPrice) || 0, 
-        phone: b.phone 
-      }
+      extendedProps: { services: b.services, totalPrice: parseFloat(b.totalPrice) || 0, phone: b.phone }
     })),
     eventMouseEnter(info) {
+      if (window.innerWidth < 768) return; // без tooltip на мобилни
       const { services, totalPrice, phone } = info.event.extendedProps;
       tooltip.innerHTML = `
         <strong>${info.event.title}</strong><br>
@@ -136,10 +208,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     eventMouseLeave() {
       tooltip.style.display = 'none';
     },
+    eventClick(info) {
+      if (window.innerWidth >= 768) return; // popup само за мобилни
+      const { services, totalPrice, phone } = info.event.extendedProps;
+      modalBody.innerHTML = `
+        <p><strong>${info.event.title}</strong></p>
+        <p>📞 Телефон: ${phone || '—'}</p>
+        <p>💅 Услуги:</p>
+        <ul>${services.map(s => `<li>${s}</li>`).join('')}</ul>
+        <p><strong>💰 Общо: ${totalPrice.toFixed(2)} лв</strong></p>
+      `;
+      modal.style.display = 'flex';
+    },
     datesSet() {
       document.querySelectorAll('.day-total').forEach(el => el.remove());
       const events = calendar.getEvents();
-
       document.querySelectorAll('.fc-daygrid-day').forEach(dayCell => {
         const date = new Date(dayCell.getAttribute('data-date'));
         const dayEvents = events.filter(ev => {
@@ -148,7 +231,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                  evDate.getMonth() === date.getMonth() &&
                  evDate.getDate() === date.getDate();
         });
-
         const dayTotal = dayEvents.reduce((sum, ev) => sum + (ev.extendedProps.totalPrice || 0), 0);
         if (dayTotal > 0) {
           const label = document.createElement('div');
