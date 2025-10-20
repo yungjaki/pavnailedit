@@ -6,65 +6,40 @@
 <title>Календар - PavNailedIt</title>
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-
 <style>
 body {
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #ffe0ef, #fff5f8);
-  min-height: 100vh;
-  padding: 1.5rem;
-  color: #2c2c2c;
+  font-family: 'Roboto', sans-serif;
+  background-color: #fff0f4;
+  padding: 2rem;
 }
 h1 {
   text-align: center;
   color: #ff6ec4;
   margin-bottom: 1.5rem;
-  font-weight: 600;
-  text-shadow: 0 2px 8px rgba(255,110,196,0.2);
 }
 #calendar {
   max-width: 900px;
   margin: 0 auto;
-  background: white;
+  background: #ffd3e8; /* по-тъмен розов фон за contrast */
   padding: 1rem;
-  border-radius: 25px;
-  box-shadow: 0 10px 25px rgba(255,110,196,0.2);
-  overflow: hidden;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(255,110,196,0.3);
 }
 .fc-event {
-  background: linear-gradient(135deg, #ff9ecd, #ff6ec4) !important;
+  background-color: #f9a1c2 !important;
   border: none !important;
   color: #fff !important;
-  border-radius: 12px !important;
-  padding: 3px 6px !important;
-  font-size: 0.85rem;
-  box-shadow: 0 2px 5px rgba(255,110,196,0.3);
-  transition: transform 0.2s ease;
-}
-.fc-event:hover {
-  transform: scale(1.05);
+  border-radius: 10px !important;
+  padding: 2px 5px !important;
+  font-size: 0.9rem;
 }
 .fc-daygrid-day:hover {
-  background-color: #fff0f6 !important;
+  background-color: #ffe6f0 !important;
   cursor: pointer;
 }
-.fc-daygrid-day-top {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-}
-.day-total {
-  font-size: 0.8rem;
-  background: #ffeaf5;
-  border: 1px solid #ffb3d6;
-  color: #ff3f9d;
-  border-radius: 8px;
-  padding: 2px 6px;
-  margin-top: 2px;
-  display: inline-block;
-  font-weight: 600;
-  box-shadow: 0 2px 6px rgba(255,110,196,0.2);
+.fc-day-today {
+  background-color: #ff9ecd !important; /* днешен ден по-тъмен розов */
+  border-radius: 15px;
 }
 .tooltip {
   position: absolute;
@@ -79,21 +54,38 @@ h1 {
   z-index: 1000;
   width: 220px;
 }
-.tooltip strong {
-  color: #ff6ec4;
+.tooltip strong { color: #ff6ec4; }
+.day-total {
+  font-size: 0.8rem;
+  background: #ffe4f0;
+  border: 1px solid #ffb3d6;
+  color: #ff3f9d;
+  border-radius: 8px;
+  padding: 2px 6px;
+  margin-top: 2px;
+  display: inline-block;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(255,110,196,0.2);
 }
-@media (max-width: 768px) {
-  #calendar {
-    padding: 0.5rem;
-  }
-  .tooltip {
-    font-size: 0.8rem;
-    width: 180px;
-  }
-  .day-total {
-    font-size: 0.7rem;
-    padding: 2px 4px;
-  }
+#calendar .fc-toolbar-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  color: #ff3f9d;
+  font-weight: 600;
+  font-size: 1.3rem;
+}
+.month-total {
+  font-size: 0.9rem;
+  color: #fff;
+  background: #ff6ec4;
+  padding: 5px 10px;
+  border-radius: 12px;
+}
+@media(max-width:768px){
+  .tooltip { width: 160px; font-size: 0.8rem; }
+  .day-total { font-size: 0.7rem; padding: 1px 4px; }
 }
 </style>
 </head>
@@ -118,37 +110,34 @@ async function loadBookings() {
 }
 
 function formatDateISO(dateStr, timeStr) {
-  const [d, m, y] = dateStr.split('.');
+  const [d,m,y] = dateStr.split('.');
   return `${y}-${m}-${d}T${timeStr}:00`;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
   const bookings = await loadBookings();
 
-  // 🎯 Групиране на суми по дата
-  const dayTotals = {};
-  bookings.forEach(b => {
-    const key = b.date;
-    const price = parseFloat(b.totalPrice) || 0;
-    dayTotals[key] = (dayTotals[key] || 0) + price;
-  });
-
-  const events = bookings.map(b => ({
-    title: `${b.time} — ${b.name}`,
-    start: formatDateISO(b.date, b.time),
-    extendedProps: {
-      services: b.services,
-      totalPrice: b.totalPrice,
-      phone: b.phone
-    }
-  }));
+  function getMonthTotal(year, month) {
+    let total = 0;
+    bookings.forEach(b => {
+      const [d,m,y] = b.date.split('.');
+      if (parseInt(m) === month && parseInt(y) === year) {
+        total += parseFloat(b.totalPrice) || 0;
+      }
+    });
+    return total;
+  }
 
   const calendarEl = document.getElementById('calendar');
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     locale: 'bg',
     height: 'auto',
-    events,
+    events: bookings.map(b => ({
+      title: `${b.time} — ${b.name}`,
+      start: formatDateISO(b.date, b.time),
+      extendedProps: { services: b.services, totalPrice: b.totalPrice, phone: b.phone }
+    })),
     eventMouseEnter(info) {
       const { services, totalPrice, phone } = info.event.extendedProps;
       tooltip.innerHTML = `
@@ -159,44 +148,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         <p><strong>💰 Общо: ${totalPrice} лв</strong></p>
       `;
       tooltip.style.display = 'block';
-
-      const tooltipWidth = tooltip.offsetWidth;
-      const tooltipHeight = tooltip.offsetHeight;
-      const pageWidth = window.innerWidth;
-      const pageHeight = window.innerHeight;
-      const mouseX = info.jsEvent.pageX;
-      const mouseY = info.jsEvent.pageY;
-
-      let left = mouseX + 10;
-      let top = mouseY + 10;
-
-      if (mouseX + tooltipWidth + 20 > pageWidth) {
-        left = mouseX - tooltipWidth - 10;
+      const pageWidth = document.documentElement.clientWidth;
+      let left = info.jsEvent.pageX + 10;
+      if (left + tooltip.offsetWidth > pageWidth - 10) {
+        left = info.jsEvent.pageX - tooltip.offsetWidth - 10;
       }
-      if (mouseY + tooltipHeight + 20 > pageHeight) {
-        top = mouseY - tooltipHeight - 10;
-      }
-
       tooltip.style.left = left + 'px';
-      tooltip.style.top = top + 'px';
+      tooltip.style.top = (info.jsEvent.pageY + 10) + 'px';
     },
     eventMouseLeave() {
       tooltip.style.display = 'none';
     },
-    datesSet() {
-      // След като календара се рендерира, добавяме дневните суми 💰
+    datesSet(info) {
       document.querySelectorAll('.fc-daygrid-day').forEach(dayCell => {
         const date = dayCell.getAttribute('data-date');
-        const [y, m, d] = date.split('-');
+        const [y,m,d] = date.split('-');
         const key = `${d}.${m}.${y}`;
-        if (dayTotals[key]) {
+        const dayTotal = bookings
+          .filter(b => b.date === key)
+          .reduce((sum, b) => sum + (parseFloat(b.totalPrice)||0), 0);
+        if(dayTotal>0){
           const label = document.createElement('div');
           label.className = 'day-total';
-          label.textContent = `💰 ${dayTotals[key]} лв`;
-          const topSection = dayCell.querySelector('.fc-daygrid-day-top');
-          if (topSection) topSection.appendChild(label);
+          label.textContent = `💰 ${dayTotal} лв`;
+          dayCell.querySelector('.fc-daygrid-day-top')?.appendChild(label);
         }
       });
+
+      const monthTotal = getMonthTotal(info.start.getFullYear(), info.start.getMonth() + 1);
+      const titleEl = document.querySelector('.fc-toolbar-title');
+      if(titleEl){
+        if(!titleEl.querySelector('.month-total')){
+          const totalEl = document.createElement('div');
+          totalEl.className = 'month-total';
+          totalEl.textContent = `💰 ${monthTotal} лв за месеца`;
+          titleEl.appendChild(totalEl);
+        } else {
+          titleEl.querySelector('.month-total').textContent = `💰 ${monthTotal} лв за месеца`;
+        }
+      }
     }
   });
 
