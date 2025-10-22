@@ -97,7 +97,7 @@
         email: form.email.value
       };
 
-      const res = await fetch('http://localhost:3000/api/giftcard', {
+      const res = await fetch('http://localhost:3000/api/giftcards', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data)
