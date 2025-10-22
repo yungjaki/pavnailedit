@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PavNailedIt | Gift Cards</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .gift-section {
+      text-align: center;
+      padding: 60px 20px;
+      background: #fffafc;
+      min-height: 100vh;
+    }
+    .gift-section h1 {
+      font-size: 3rem;
+      background: linear-gradient(45deg,#f8b7d1,#f9a1c2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 2rem;
+    }
+    .gift-form {
+      max-width: 500px;
+      margin: 0 auto;
+      background: #fff0f5;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(249,161,194,0.2);
+    }
+    .gift-form input, .gift-form textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 1rem;
+      border-radius: 12px;
+      border: 1px solid #f9a1c2;
+      font-size: 1rem;
+      background: white;
+    }
+    .gift-form button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 50px;
+      border: none;
+      background: linear-gradient(90deg,#f8b7d1,#f9a1c2);
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    .gift-form button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 16px rgba(249,161,194,0.4);
+    }
+    .download-link {
+      display: none;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #ff6ec4;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 class="logo">PavNailedIt</h1>
+    <nav class="desktop-nav">
+      <a href="index.html">HOME</a>
+      <a href="pics.html">PICTURES</a>
+      <a href="book.html">BOOK</a>
+      <a class="selected" href="#">GIFT CARDS</a>
+    </nav>
+  </header>
+
+  <section class="gift-section">
+    <h1>🎁 Gift Cards</h1>
+    <p class="description">Изненадай любим човек с красив маникюр 💅🏻</p>
+
+    <form class="gift-form" id="giftForm">
+      <input type="text" name="recipient" placeholder="Име на получателя" required>
+      <input type="number" name="amount" placeholder="Сума (лв)" required>
+      <textarea name="message" placeholder="Кратко пожелание" rows="3"></textarea>
+      <input type="email" name="email" placeholder="Имейл за получаване (по желание)">
+      <button type="submit">✨ Генерирай подаръчна карта</button>
+      <a id="downloadLink" class="download-link" href="#" download>⬇️ Изтегли PDF</a>
+    </form>
+  </section>
+
+  <script>
+    document.getElementById('giftForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        recipient: form.recipient.value,
+        amount: form.amount.value,
+        message: form.message.value,
+        email: form.email.value
+      };
+
+      const res = await fetch('http://localhost:3000/api/giftcard', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.getElementById('downloadLink');
+        link.href = url;
+        link.style.display = 'block';
+      } else {
+        alert('⚠️ Грешка при генериране на картата.');
+      }
+    });
+  </script>
+</body>
+</html>
