@@ -86,10 +86,14 @@ button:hover {transform:scale(1.05);box-shadow:0 8px 20px rgba(255,110,196,0.4);
 <label for="design">Прикачи дизайн (по желание):</label>
 <input type="file" id="design" accept="image/*">
 
+<label for="giftcode">Подаръчна карта:</label>
+<div style="display: flex; gap: 10px; align-items: center;">
+  <input type="text" id="giftcode" placeholder="Въведи код (напр. AB12C3)" style="flex:1;">
+  <button type="button" id="applyGiftBtn" style="white-space:nowrap;">Използвай карта</button>
+</div>
+<p id="giftFeedback" style="margin-top:0.5rem; color:#ff6ec4; font-weight:500;"></p>
+    
 <div id="totalPrice">Общо: 0лв</div>
-
-<label for="giftcode">Подаръчна карта (по желание):</label>
-<input type="text" id="giftcode" placeholder="Въведи код от картата">
     
 <button type="button" id="bookBtn">Запази час</button>
     
