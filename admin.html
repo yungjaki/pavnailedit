@@ -202,6 +202,25 @@
     </div>
   </div>
 
+  <h2>🎁 Създай подаръчна карта</h2>
+<input type="number" id="giftAmount" placeholder="Сума (лв)">
+<button id="createGiftBtn">Генерирай</button>
+
+<script>
+document.getElementById("createGiftBtn").addEventListener("click", async () => {
+  const amount = document.getElementById("giftAmount").value;
+  const res = await fetch("/api/giftcard", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ amount })
+  });
+  const data = await res.json();
+  if (res.ok) alert(`✅ Код: ${data.code}`);
+  else alert(`❌ ${data.error}`);
+});
+</script>
+
+
   <script src="admin.js" type="module"></script>
 </body>
 </html>
