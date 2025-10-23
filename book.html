@@ -88,7 +88,11 @@ button:hover {transform:scale(1.05);box-shadow:0 8px 20px rgba(255,110,196,0.4);
 
 <div id="totalPrice">Общо: 0лв</div>
 
+<label for="giftcode">Подаръчна карта (по желание):</label>
+<input type="text" id="giftcode" placeholder="Въведи код от картата">
+    
 <button type="button" id="bookBtn">Запази час</button>
+    
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -226,52 +230,65 @@ loadBookings();
 
 // Запазване на час
 const bookBtn = document.getElementById("bookBtn");
-bookBtn.addEventListener("click", async ()=>{
-    const name=document.getElementById("name").value;
-    const phone=document.getElementById("phone").value;
-    const email=document.getElementById("email").value;
-    const selectedServices = Array.from(serviceOptions)
-        .filter(o=>o.classList.contains("active"))
-        .map(o=>{
-            const c=parseInt(o.querySelector('.counter')?.textContent)||1;
-            return c>1?`${o.textContent.replace(/\d+[,\.]?\d*лв.*/,'').trim()} x${c}`:o.textContent.replace(/\d+[,\.]?\д*лв.*/,'').trim();
-        });
-    const date = dateInput.value;
-    const time = document.querySelector(".time-btn.active")?.dataset.time;
-    const totalPrice = currentTotal.toFixed(2);
-    const designFile = document.getElementById("design").files[0];
+bookBtn.addEventListener("click", async () => {
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
+  const email = document.getElementById("email").value;
+  const giftCode = document.getElementById("giftcode").value.trim();
+  const selectedServices = Array.from(serviceOptions)
+    .filter(o => o.classList.contains("active"))
+    .map(o => o.textContent.replace(/\d+[,\.]?\d*лв.*/, '').trim());
 
-    if(!name || !phone || !email || !date || !time || selectedServices.length===0){
-        alert("❌ Моля, попълнете всички задължителни полета.");
-        return;
+  const date = dateInput.value;
+  const time = document.querySelector(".time-btn.active")?.dataset.time;
+  const designFile = document.getElementById("design").files[0];
+
+  if (!name || !phone || !email || !date || !time || selectedServices.length === 0) {
+    alert("❌ Моля, попълнете всички задължителни полета.");
+    return;
+  }
+
+  let finalPrice = currentTotal;
+  if (giftCode) {
+    const res = await fetch(`/api/giftcard?code=${giftCode}`);
+    const data = await res.json();
+    if (!res.ok || !data.cards || data.cards.length === 0) {
+      alert("❌ Невалиден подаръчен код.");
+      return;
+    }
+    const card = data.cards.find(c => c.code === giftCode);
+    if (!card) {
+      alert("❌ Невалиден подаръчен код.");
+      return;
+    }
+    if (card.used) {
+      alert("❌ Тази карта вече е използвана.");
+      return;
     }
 
-    const formData = new FormData();
-    formData.append("name",name);
-    formData.append("phone",phone);
-    formData.append("email",email);
-    formData.append("services",JSON.stringify(selectedServices));
-    formData.append("date",date);
-    formData.append("time",time);
-    formData.append("totalPrice",totalPrice);
-    if(designFile) formData.append("design",designFile);
+    finalPrice = Math.max(0, currentTotal - card.amount);
+    await fetch("/api/giftcard", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: giftCode }),
+    });
+  }
 
-    try{
-        const res = await fetch("/api/book",{method:"POST",body:formData});
-        const data = await res.json();
-        if(res.ok){
-            alert(`✅ ${data.message}`);
-            document.getElementById("bookingForm").reset();
-            serviceOptions.forEach(o=>{o.classList.remove('active'); const c=o.querySelector('.counter'); if(c)c.style.display='none';});
-            updatePrice();
-            await loadBookings();
-        } else {
-            alert(`❌ ${data.error || "Грешка при запазването"}`);
-        }
-    } catch(e) {
-        console.error(e);
-        alert("❌ Грешка при свързване със сървъра.");
-    }
+  const formData = new FormData();
+  formData.append("name", name);
+  formData.append("phone", phone);
+  formData.append("email", email);
+  formData.append("services", JSON.stringify(selectedServices));
+  formData.append("date", date);
+  formData.append("time", time);
+  formData.append("totalPrice", finalPrice.toFixed(2));
+  if (designFile) formData.append("design", designFile);
+
+  const res = await fetch("/api/book", { method: "POST", body: formData });
+  const data = await res.json();
+
+  if (res.ok) alert(`✅ ${data.message}`);
+  else alert(`❌ ${data.error || "Грешка при запазването"}`);
 });
 </script>
 
