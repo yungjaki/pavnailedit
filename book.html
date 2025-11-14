@@ -108,8 +108,8 @@ const serviceOptions = document.querySelectorAll(".service-option");
 const totalPriceEl = document.getElementById("totalPrice");
 let currentTotal = 0;
 
-const holidays = ["01.01.2025","03.03.2025","01.05.2025","06.05.2025","24.05.2025","06.09.2025","22.09.2025","24.12.2025","25.12.2025","26.12.2025"];
-const breaks = [{ start: "20.12.2025", end: "25.12.2025" }];
+const holidays = ["01.01.2025","03.03.2025","01.05.2025","06.05.2025","24.05.2025","06.09.2025","22.09.2025","24.12.2026","25.12.2026","26.12.2026"];
+const breaks = [{ start: "20.12.2026", end: "25.12.2026" }];
 
 function isBreak(dateStr){const[d,m,y]=dateStr.split(".").map(Number);const date=new Date(y,m-1,d);return breaks.some(b=>{const[sd,sm,sy]=b.start.split(".").map(Number);const[ed,em,ey]=b.end.split(".").map(Number);return date>=new Date(sy,sm-1,sd)&&date<=new Date(ey,em-1,ed);});}
 function isWeekendOrHoliday(dateStr){const[d,m,y]=dateStr.split(".").map(Number);const date=new Date(y,m-1,d);const day=date.getDay();return day===0||day===6||holidays.includes(dateStr);}
