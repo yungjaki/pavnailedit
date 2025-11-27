@@ -145,46 +145,83 @@ export default async function handler(req, res) {
         const icsContent = generateICS(name, services, phone, date, time, totalPrice);
 
         // имейл до техника
-        await sgMail.send({
-          to: process.env.TECH_EMAIL,
-          from: process.env.SENDGRID_FROM_EMAIL,
-          subject: `Нов запис: ${name} — ${date} ${time}`,
-          html: `<div style="font-family:Roboto,sans-serif;background:#fff0f4;padding:25px;border-radius:20px;">
-                  <h2 style="color:#ff6ec4;">💅🏻 Нов запис</h2>
-                  <p><strong>Име:</strong> ${name}</p>
-                  <p><strong>Телефон:</strong> ${phone}</p>
-                  <p><strong>Дата:</strong> ${date}</p>
-                  <p><strong>Час:</strong> ${time}</p>
-                  <h3 style="color:#f9a1c2;">✨ Услуги:</h3>
-                  <ul>${services.map((s) => `<li>💖 ${s}</li>`).join("")}</ul>
-                  <p style="font-size:18px;font-weight:700;color:#ff6ec4;">💰 Общо: ${totalPrice} лв</p>
-                  ${designUrl ? `<p><strong>📸 Прикачен дизайн:</strong></p><img src="${designUrl}" style="max-width:300px;border-radius:10px;">` : ""}
-                </div>`,
-          attachments: [
-            {
-              content: Buffer.from(icsContent).toString("base64"),
-              filename: "booking.ics",
-              type: "text/calendar",
-              disposition: "attachment",
-            },
-          ],
-        });
+await sgMail.send({
+  to: process.env.TECH_EMAIL,
+  from: process.env.SENDGRID_FROM_EMAIL,
+  subject: `Нов запис: ${name} — ${date} ${time}`,
+  text: `Нов запис от ${name}. Телефон: ${phone}. Дата: ${date}, Час: ${time}. Услуги: ${services.join(", ")}. Общо: ${totalPrice} лв.`,
+  headers: {
+    "X-Mailer": "BookingSystem",
+    "X-Entity-Ref-ID": "booking-tech",
+  },
+  html: `
+  <div style="font-family:Roboto,Arial,sans-serif;background:#fff0f4;padding:25px;border-radius:20px;color:#333;">
+    <h2 style="color:#ff6ec4;margin-top:0;">💅🏻 Нов запис</h2>
+
+    <p><strong>Име:</strong> ${name}</p>
+    <p><strong>Телефон:</strong> ${phone}</p>
+    <p><strong>Дата:</strong> ${date}</p>
+    <p><strong>Час:</strong> ${time}</p>
+
+    <h3 style="color:#f9a1c2;margin-bottom:8px;">✨ Услуги:</h3>
+    <ul style="padding-left:18px;margin-top:0;">
+      ${services.map((s) => `<li style="margin-bottom:4px;">💖 ${s}</li>`).join("")}
+    </ul>
+
+    <p style="font-size:18px;font-weight:700;color:#ff6ec4;margin-top:15px;">
+      💰 Общо: ${totalPrice} лв
+    </p>
+
+    ${
+      designUrl
+        ? `<p><strong>📸 Прикачен дизайн:</strong></p>
+           <img src="${designUrl}" style="max-width:300px;border-radius:10px;">`
+        : ""
+    }
+  </div>
+  `,
+  attachments: [
+    {
+      content: Buffer.from(icsContent).toString("base64"),
+      filename: "booking.ics",
+      type: "text/calendar",
+      disposition: "attachment",
+    },
+  ],
+});
 
         // имейл до клиента
-        await sgMail.send({
-          to: clientEmail,
-          from: process.env.SENDGRID_FROM_EMAIL,
-          subject: `Потвърждение на час: ${date} ${time}`,
-          html: `<div style="font-family:Roboto,sans-serif;background:#fff0f4;padding:25px;border-radius:20px;">
-                  <h2 style="color:#ff6ec4;text-align:center;">💅🏻 Здравей, ${name}!</h2>
-                  <p>Вашият час е успешно запазен.</p>
-                  <p><strong>Дата:</strong> ${date}</p>
-                  <p><strong>Час:</strong> ${time}</p>
-                  <ul>${services.map((s) => `<li>💖 ${s}</li>`).join("")}</ul>
-                  <p style="font-weight:700;color:#ff6ec4;">💰 Общо: ${totalPrice} лв</p>
-                  <p style="margin-top:15px;">Очакваме те 💞 ул. Благовест 1</p>
-                </div>`,
-        });
+await sgMail.send({
+  to: clientEmail,
+  from: process.env.SENDGRID_FROM_EMAIL,
+  subject: `Потвърждение на час: ${date} ${time}`,
+  text: `Здравей, ${name}! Вашият час е запазен за ${date} в ${time}. Услуги: ${services.join(", ")}. Общо: ${totalPrice} лв.`,
+  headers: {
+    "X-Mailer": "BookingSystem",
+    "X-Entity-Ref-ID": "booking-client",
+  },
+  html: `
+  <div style="font-family:Roboto,Arial,sans-serif;background:#fff0f4;padding:25px;border-radius:20px;text-align:left;color:#333;">
+    <h2 style="color:#ff6ec4;text-align:center;margin-top:0;">💅🏻 Здравей, ${name}!</h2>
+
+    <p>Вашият час е успешно запазен.</p>
+
+    <p><strong>Дата:</strong> ${date}</p>
+    <p><strong>Час:</strong> ${time}</p>
+
+    <h3 style="color:#f9a1c2;margin-bottom:8px;">✨ Услуги:</h3>
+    <ul style="padding-left:18px;margin-top:0;">
+      ${services.map((s) => `<li style="margin-bottom:4px;">💖 ${s}</li>`).join("")}
+    </ul>
+
+    <p style="font-weight:700;color:#ff6ec4;font-size:18px;margin-top:12px;">
+      💰 Общо: ${totalPrice} лв
+    </p>
+
+    <p style="margin-top:15px;">Очакваме те 💞 ул. Благовест 1</p>
+  </div>
+  `,
+});
 
         return res.status(200).json({ message: "Часът е запазен и снимката е изпратена!", id: docRef.id });
       } catch (err) {
