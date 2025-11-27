@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PavNailedIt – Запазен Час</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #fff0f4;
+      text-align: center;
+      padding: 40px 20px;
+      color: #333;
+    }
+    .box {
+      background: white;
+      padding: 30px;
+      max-width: 500px;
+      margin: 70px auto;
+      border-radius: 25px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #ff6ec4;
+      margin-bottom: 15px;
+    }
+    p {
+      font-size: 1.1rem;
+    }
+    a.btn {
+      display: inline-block;
+      margin-top: 25px;
+      padding: 12px 28px;
+      background: linear-gradient(90deg, #f8b7d1, #f9a1c2);
+      color: white;
+      border-radius: 50px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 1.1rem;
+      box-shadow: 0 8px 20px rgba(249,161,194,0.5);
+      transition: 0.3s;
+    }
+    a.btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 12px 25px rgba(249,161,194,0.7);
+    }
+  </style>
+</head>
+<body>
+
+<div class="box" id="content"></div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const success = params.get("success") === "true";
+
+  const content = document.getElementById("content");
+
+  if (success) {
+    content.innerHTML = `
+      <h1>💅🏻 Успешно запазихте час!</h1>
+      <p>Вашият час е регистриран. Очакваме Ви!</p>
+      <a href="index.html" class="btn">Към началната страница</a>
+    `;
+  } else {
+    content.innerHTML = `
+      <h1>⚠️ Вече имате запазен час</h1>
+      <p>Не можете да запазите нов час, докато този не измине.</p>
+      <a href="index.html" class="btn">Към началната страница</a>
+    `;
+  }
+</script>
+
+</body>
+</html>
