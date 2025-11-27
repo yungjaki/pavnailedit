@@ -236,8 +236,49 @@
   </div>
 </div>
 
+    <script>
+  // Check if user has an active booking before showing Book Now
+  function hasActiveBooking() {
+    const id = localStorage.getItem("pavBooking");
+    const date = localStorage.getItem("pavBookingDate");
+    const time = localStorage.getItem("pavBookingTime");
+
+    if (!id || !date || !time) return false;
+
+    const [d, m, y] = date.split(".");
+    const [hh, mm] = time.split(":");
+
+    const bookingDate = new Date(y, m - 1, d, hh, mm);
+    const now = new Date();
+
+    if (now > bookingDate) {
+      localStorage.removeItem("pavBooking");
+      localStorage.removeItem("pavBookingDate");
+      localStorage.removeItem("pavBookingTime");
+      return false;
+    }
+
+    return true;
+  }
+
+  document.querySelector(".btn-book").addEventListener("click", (e) => {
+    if (hasActiveBooking()) {
+      e.preventDefault();
+      window.location.href = "already-booked.html";
+    }
+  });
+
+  document.querySelector(".floating-book").addEventListener("click", (e) => {
+    if (hasActiveBooking()) {
+      e.preventDefault();
+      window.location.href = "already-booked.html";
+    }
+  });
+</script>
+
 </body>
 </html>
+
 
 
 
