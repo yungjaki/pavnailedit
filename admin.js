@@ -1,50 +1,70 @@
+// admin.js — пълен файл (замени целия си admin.js с този)
+
 const adminPanelWrapper = document.querySelector('.dashboard-wrapper');
 const logoutBtn = document.getElementById('logout');
 const appointmentsContainer = document.getElementById('appointmentsContainer');
 
-const filterDateInput = document.getElementById('filterDate');
-const sortOrderSelect = document.getElementById('sortOrder');
+const filterDateInput = document.getElementById('filterDate'); // type="date" => yyyy-mm-dd
+const sortOrderSelect = document.getElementById('sortOrder');   // asc/desc
 const applyFilterBtn = document.getElementById('applyFilter');
-const clearFilterBtn = document.getElementById('clearFilter');
+const clearFilterBtn = document.getElementById('clearFilter');  // ако го нямаш в HTML, ще се игнорира
 
 let allAppointments = [];
 
-// Парсва "YYYY-MM-DD" + "HH:MM" до Date обект (локално време)
-function toDateTime(dateStr, timeStr) {
-  // защитно: ако timeStr е "9:00" -> "09:00"
-  const safeTime = (timeStr || '00:00').padStart(5, '0');
-  return new Date(`${dateStr}T${safeTime}:00`);
+/**
+ * dateStr: "dd.mm.yyyy"
+ * timeStr: "HH:MM" or "HH:MM:SS"
+ * => връща Date (локално време), стабилно за сортиране
+ */
+function toDateTimeBG(dateStr, timeStr) {
+  if (!dateStr) return new Date(NaN);
+
+  const parts = String(dateStr).trim().split('.');
+  if (parts.length !== 3) return new Date(NaN);
+
+  const dd = parseInt(parts[0], 10);
+  const mm = parseInt(parts[1], 10);
+  const yyyy = parseInt(parts[2], 10);
+
+  if (!dd || !mm || !yyyy) return new Date(NaN);
+
+  const safeTime = String(timeStr || '00:00').trim();
+
+  // позволява "HH:MM" и "HH:MM:SS"
+  const tParts = safeTime.split(':');
+  const h = parseInt(tParts[0] ?? '0', 10) || 0;
+  const m = parseInt(tParts[1] ?? '0', 10) || 0;
+
+  return new Date(yyyy, mm - 1, dd, h, m, 0, 0);
 }
 
-// Нормализира дата до "YYYY-MM-DD" (ако бекендът праща ISO или друго)
-function normalizeDateOnly(dateStr) {
-  if (!dateStr) return '';
-  // ако вече е YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+/**
+ * Сравнява dateStrBG "dd.mm.yyyy" с selectedYmd "yyyy-mm-dd"
+ */
+function matchesSelectedDate(dateStrBG, selectedYmd) {
+  if (!selectedYmd) return true;
 
-  // ако е ISO (пример: 2026-01-08T00:00:00.000Z)
-  const d = new Date(dateStr);
-  if (!isNaN(d.getTime())) {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }
+  const d = toDateTimeBG(dateStrBG, '00:00');
+  if (isNaN(d.getTime())) return false;
 
-  // fallback: връщаме както е
-  return dateStr;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const ymd = `${y}-${m}-${day}`;
+
+  return ymd === selectedYmd;
 }
 
 async function fetchAppointments() {
   try {
     const res = await fetch('/api/book');
     const data = await res.json();
-    allAppointments = (data.bookings || []).map(a => ({
-      ...a,
-      date: normalizeDateOnly(a.date),
-    }));
 
-    applyFiltersAndRender(); // render с текущите филтри/сорт
+    // очакваме { bookings: [...] }
+    allAppointments = data.bookings || [];
+
+    // рендър с филтри/сорт веднага
+    applyFiltersAndRender();
   } catch (err) {
     console.error('Error fetching appointments:', err);
     appointmentsContainer.innerHTML = '<p>❌ Грешка при зареждане на резервации.</p>';
@@ -75,8 +95,9 @@ function renderAppointments(arr) {
       </div>
     `;
 
-    const bookingId = app.id ?? app._id; // поддръжка за Mongo/различни бекенд-и
+    const bookingId = app.id ?? app._id;
 
+    // Cancel
     card.querySelector('.cancel-btn').addEventListener('click', async () => {
       if (!bookingId) return alert('Липсва ID на резервацията.');
       if (!confirm(`Сигурни ли сте, че искате да откажете час на ${app.name}?`)) return;
@@ -89,8 +110,9 @@ function renderAppointments(arr) {
         });
         const resp = await res.json();
 
-        if (!res.ok) alert(resp.error || 'Грешка при отказване.');
-        else {
+        if (!res.ok) {
+          alert(resp.error || 'Грешка при отказване.');
+        } else {
           alert('Часът е успешно отменен.');
           await fetchAppointments();
         }
@@ -100,10 +122,11 @@ function renderAppointments(arr) {
       }
     });
 
+    // Reschedule
     card.querySelector('.reschedule-btn').addEventListener('click', async () => {
       if (!bookingId) return alert('Липсва ID на резервацията.');
 
-      const newDate = prompt('Нова дата (YYYY-MM-DD):', app.date || '');
+      const newDate = prompt('Нова дата (DD.MM.YYYY):', app.date || '');
       if (!newDate) return;
 
       const newTime = prompt('Нов час (HH:MM):', app.time || '');
@@ -117,8 +140,9 @@ function renderAppointments(arr) {
         });
         const resp = await res.json();
 
-        if (!res.ok) alert(resp.error || 'Грешка при промяна на час.');
-        else {
+        if (!res.ok) {
+          alert(resp.error || 'Грешка при промяна на час.');
+        } else {
           alert('Часът е успешно променен.');
           await fetchAppointments();
         }
@@ -135,37 +159,44 @@ function renderAppointments(arr) {
 function applyFiltersAndRender() {
   let filtered = [...allAppointments];
 
-  const selDate = filterDateInput.value; // "YYYY-MM-DD" от input type=date
+  // Филтър по дата от input type="date" (yyyy-mm-dd)
+  const selDate = filterDateInput?.value || '';
   if (selDate) {
-    filtered = filtered.filter(a => normalizeDateOnly(a.date) === selDate);
+    filtered = filtered.filter(a => matchesSelectedDate(a.date, selDate));
   }
 
-  const order = sortOrderSelect.value; // asc/desc
+  // Сортиране по дата+час
+  const order = sortOrderSelect?.value || 'asc';
   filtered.sort((a, b) => {
-    const da = toDateTime(a.date, a.time);
-    const db = toDateTime(b.date, b.time);
-    return order === 'asc' ? da - db : db - da;
+    const da = toDateTimeBG(a.date, a.time);
+    const db = toDateTimeBG(b.date, b.time);
+
+    const aBad = isNaN(da.getTime());
+    const bBad = isNaN(db.getTime());
+    if (aBad && bBad) return 0;
+    if (aBad) return 1;
+    if (bBad) return -1;
+
+    return order === 'asc' ? (da - db) : (db - da);
   });
 
   renderAppointments(filtered);
 }
 
 // Events
-applyFilterBtn.addEventListener('click', applyFiltersAndRender);
+applyFilterBtn?.addEventListener('click', applyFiltersAndRender);
+sortOrderSelect?.addEventListener('change', applyFiltersAndRender);
+filterDateInput?.addEventListener('change', applyFiltersAndRender);
 
-sortOrderSelect.addEventListener('change', applyFiltersAndRender);
-
-// по желание: да филтрира веднага при смяна на дата
-filterDateInput.addEventListener('change', applyFiltersAndRender);
-
-clearFilterBtn.addEventListener('click', () => {
-  filterDateInput.value = '';
-  sortOrderSelect.value = 'asc';
+// Ако имаш бутон clearFilter в HTML
+clearFilterBtn?.addEventListener('click', () => {
+  if (filterDateInput) filterDateInput.value = '';
+  if (sortOrderSelect) sortOrderSelect.value = 'asc';
   applyFiltersAndRender();
 });
 
-logoutBtn.addEventListener('click', () => {
-  adminPanelWrapper.style.display = 'none';
+logoutBtn?.addEventListener('click', () => {
+  if (adminPanelWrapper) adminPanelWrapper.style.display = 'none';
 });
 
 // Start
