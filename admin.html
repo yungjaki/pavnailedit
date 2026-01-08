@@ -6,6 +6,7 @@
   <title>Admin Dashboard – PavNailedIt</title>
   <link rel="stylesheet" href="style.css" />
   <style>
+    /* (оставям ти CSS-а както е) */
     body {
       margin: 0;
       padding: 0;
@@ -169,18 +170,9 @@
       color: white;
     }
 
-    /* Scrollbar styling for dashboard content */
-    .dashboard-content::-webkit-scrollbar {
-      width: 10px;
-    }
-    .dashboard-content::-webkit-scrollbar-track {
-      background: #f9d0d8;
-      border-radius: 10px;
-    }
-    .dashboard-content::-webkit-scrollbar-thumb {
-      background: #f9a1c2;
-      border-radius: 10px;
-    }
+    .dashboard-content::-webkit-scrollbar { width: 10px; }
+    .dashboard-content::-webkit-scrollbar-track { background: #f9d0d8; border-radius: 10px; }
+    .dashboard-content::-webkit-scrollbar-thumb { background: #f9a1c2; border-radius: 10px; }
   </style>
 </head>
 <body>
@@ -194,29 +186,16 @@
           <option value="desc">От ново към старо</option>
         </select>
         <button id="applyFilter" aria-label="Приложи филтър">Филтрирай</button>
+        <button id="clearFilter" aria-label="Изчисти филтър">Изчисти</button>
         <button id="logout" class="logout-btn" aria-label="Изход от админ панела">Изход</button>
       </div>
     </div>
+
     <div class="dashboard-content">
       <div id="appointmentsContainer" class="appointments-grid"></div>
     </div>
   </div>
 
-<script>
-document.getElementById("createGiftBtn").addEventListener("click", async () => {
-  const amount = document.getElementById("giftAmount").value;
-  const res = await fetch("/api/giftcard", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ amount })
-  });
-  const data = await res.json();
-  if (res.ok) alert(`✅ Код: ${data.code}`);
-  else alert(`❌ ${data.error}`);
-});
-</script>
-
-
-  <script src="admin.js" type="module"></script>
+  <script src="admin.js"></script>
 </body>
 </html>
